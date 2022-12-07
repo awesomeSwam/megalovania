@@ -2,6 +2,7 @@ import { Sprite } from "../AssetsManagement/Sprite.js";
 import { gameSpriteSheetData_json } from "../Constants/spriteSheetData.js";
 import { toRad } from "../Constants/GameMath.js";
 import { Debugger, Collider } from "../Components/Collider.js";
+import { battleBoxLineWidth } from "../Objects/BattleBox.js";
 
 const vbone_up_w = gameSpriteSheetData_json.vbone.vbone_up[2];
 const vbone_up_h = gameSpriteSheetData_json.vbone.vbone_up[3];
@@ -15,6 +16,65 @@ const vbone_down_h = gameSpriteSheetData_json.vbone.vbone_down[3];
 const vbone_down_w_half = vbone_down_w / 2;
 const vbone_down_h_half = vbone_down_h / 2;
 
+const DrawBone = {
+  ctx: null,
+
+  drawVer: function(x, y, length) {
+    Sprite.draw("vbone_up", x, y);
+    this.ctx.strokeStyle = "white";
+    this.ctx.lineWidth = 12;
+    this.ctx.beginPath();
+    this.ctx.moveTo(x + vbone_up_w_half, y + vbone_up_h - 1);
+    this.ctx.lineTo(x + vbone_up_w_half, y + vbone_up_h + length + 1);
+    this.ctx.stroke();
+    Sprite.draw("vbone_down", x, y + vbone_up_h + length);    
+  },
+
+  drawHor: function(x, y, length) {
+    Sprite.draw("hbone_up", x, y);
+    this.ctx.strokeStyle = "white";
+    this.ctx.lineWidth = 12;
+    this.ctx.beginPath();
+    this.ctx.moveTo(x + vbone_up_h - 1, y + vbone_up_w_half);
+    this.ctx.lineTo(x + vbone_up_h + length + 1, y + vbone_up_w_half);
+    this.ctx.stroke();
+    Sprite.draw("hbone_down", x + vbone_up_h + length, y);
+  },
+
+  drawRot: function(x, y, angle, length_half) {
+    this.ctx.save();
+    this.ctx.translate(Math.floor(x), Math.floor(y));
+    this.ctx.rotate(angle * toRad);
+    
+    Sprite.draw("vbone_up", -vbone_up_w_half, -vbone_up_h_half - length_half);
+    this.ctx.strokeStyle = "white";
+    this.ctx.lineWidth = 12;
+    this.ctx.beginPath();
+    this.ctx.moveTo(0, -length_half - 1);
+    this.ctx.lineTo(0, length_half + 1);
+    this.ctx.stroke();
+    Sprite.draw("vbone_down", -vbone_down_w_half, length_half);
+
+    this.ctx.restore();
+  },
+
+  drawRight: function(x, y, length) {
+    this.drawHor(x, y - vbone_up_w_half, length);
+  },
+
+  drawLeft: function(x, y, length) {
+    this.drawHor(x - vbone_up_h - vbone_down_h - length, y - vbone_up_w_half, length);
+  },
+
+  drawUp: function(x, y, length) {
+    this.drawVer(x - vbone_up_w_half, y - vbone_up_h - vbone_down_h - length, length);
+  },
+
+  drawDown: function(x, y, length) {
+    this.drawVer(x - vbone_up_w_half, y, length);
+  }
+}
+
 class Bone {
   constructor(obj, x, y, length) {
     this.canvas = obj.canvas;
@@ -27,45 +87,6 @@ class Bone {
     this.length = length;
     this.length_half = length / 2;
     this.angle = 0;
-  }
-
-  drawVer(x, y) {
-    Sprite.draw("vbone_up", x, y);
-    this.ctx.strokeStyle = "white";
-    this.ctx.lineWidth = 12;
-    this.ctx.beginPath();
-    this.ctx.moveTo(x + vbone_up_w_half, y + vbone_up_h - 1);
-    this.ctx.lineTo(x + vbone_up_w_half, y + vbone_up_h + this.length + 1);
-    this.ctx.stroke();
-    Sprite.draw("vbone_down", x, y + vbone_up_h + this.length);
-  }
-
-  drawHor(x, y) {
-    Sprite.draw("hbone_up", x, y);
-    this.ctx.strokeStyle = "white";
-    this.ctx.lineWidth = 12;
-    this.ctx.beginPath();
-    this.ctx.moveTo(x + vbone_up_h - 1, y + vbone_up_w_half);
-    this.ctx.lineTo(x + vbone_up_h + this.length + 1, y + vbone_up_w_half);
-    this.ctx.stroke();
-    Sprite.draw("hbone_down", x + vbone_up_h + this.length, y);
-  }
-
-  drawRot(x, y, angle) {
-    this.ctx.save();
-    this.ctx.translate(Math.floor(x), Math.floor(y));
-    this.ctx.rotate(angle * toRad);
-    
-    Sprite.draw("vbone_up", -vbone_up_w_half, -vbone_up_h_half - this.length_half);
-    this.ctx.strokeStyle = "white";
-    this.ctx.lineWidth = 12;
-    this.ctx.beginPath();
-    this.ctx.moveTo(0, -this.length_half - 1);
-    this.ctx.lineTo(0, this.length_half + 1);
-    this.ctx.stroke();
-    Sprite.draw("vbone_down", -vbone_down_w_half, this.length_half);
-
-    this.ctx.restore();
   }
 }
 
@@ -123,16 +144,16 @@ class LineBone extends Bone {
   draw() {
     switch (this.direction) {
       case LineBone_right:
-        super.drawHor(this.x, this.y - vbone_up_w_half);
+        DrawBone.drawRight(this.x, this.y, this.length);
         break;
       case LineBone_left:
-        super.drawHor(this.x - vbone_up_h - vbone_down_h - this.length, this.y - vbone_up_w_half);
+        DrawBone.drawLeft(this.x, this.y, this.length);
         break;
       case LineBone_up:
-        super.drawVer(this.x - vbone_up_w_half, this.y - vbone_up_h - vbone_down_h - this.length);
+        DrawBone.drawUp(this.x, this.y, this.length);
         break;
       case LineBone_down:
-        super.drawVer(this.x - vbone_up_w_half, this.y);
+        DrawBone.drawDown(this.x, this.y, this.length);
         break;
       default:
         break;
@@ -200,7 +221,7 @@ class RotBones extends Bone {
   }
 
   draw() {
-    this.bones.forEach(x => super.drawRot(x.x, x.y, x.angle));
+    this.bones.forEach(x => DrawBone.drawRot(x.x, x.y, x.angle, this.length));
     this.check();
   }
 
@@ -212,4 +233,189 @@ class RotBones extends Bone {
   }
 }
 
-export { LineBone, RotBones };
+const AlertBones_direction = {
+  "up": 0,
+  "down": 1,
+  "right": 2,
+  "left": 3
+};
+const AlertBones_up = 0;
+const AlertBones_down = 1;
+const AlertBones_right = 2;
+const AlertBones_left = 3;
+const AlertBones_alertTime = 1;
+const AlertBones_interval = 20;
+const AlertBones_Padding = battleBoxLineWidth / 2 + 2;
+
+class AlertBones {
+  constructor(obj, length, direction) {
+    this.obj = obj;
+    this.ctx = obj.ctx;
+    this.length = length;
+
+    this.direction = AlertBones_direction[direction];
+    this.speed = speed;
+
+    this.alert = true;
+    this.alertTime = 0;
+    this.length = 2;
+
+    this.x = 0;
+    this.y = 0;
+    this.collider = new Collider(this, 0, 0, 0, 0);
+
+    this.bones = [];
+  }
+
+  update() {
+    if (this.alert) {
+      this.alertTime += this.obj.dt;
+      if (this.alertTime > AlertBones_alertTime) {
+        this.alert = false;
+      }
+    } else {
+      this.length += 1;
+    }
+  }
+
+  draw() {
+    if (this.alert) {
+      this.ctx.beginPath();
+      this.ctx.strokeStyle = "red";
+      this.ctx.lineWidth = 4;
+      switch (this.direction) {
+        case    AlertBones_up:
+          this.ctx.rect(
+            this.obj.battleBox.points[0].x,
+            this.obj.battleBox.points[1].y - this.length,
+            this.obj.battleBox.points[1].x - this.obj.battleBox.points[0].x,
+            this.length
+          ); break;
+        case  AlertBones_down:
+          this.ctx.rect(
+            this.obj.battleBox.points[0].x,
+            this.obj.battleBox.points[0].y,
+            this.obj.battleBox.points[1].x - this.obj.battleBox.points[0].x,
+            this.length
+          ); break;
+        case AlertBones_right:
+          this.ctx.rect(
+            this.obj.battleBox.points[0].x,
+            this.obj.battleBox.points[0].y,
+            this.length,
+            this.obj.battleBox.points[1].y - this.obj.battleBox.points[0].y
+          ); break;
+        case  AlertBones_left:
+          this.ctx.rect(
+            this.obj.battleBox.points[1].x - this.length,
+            this.obj.battleBox.points[0].y,
+            this.length,
+            this.obj.battleBox.points[1].y - this.obj.battleBox.points[0].y
+          ); break;
+        default: break;
+      }
+      this.ctx.stroke();
+    } else {
+      switch (this.direction) {
+        case    AlertBones_up:  this.drawUD(true); break;
+        case  AlertBones_down: this.drawUD(false); break;
+        case AlertBones_right:  this.drawRL(true); break;
+        case  AlertBones_left: this.drawRL(false); break;
+        default: break;
+      }
+
+      this.check();
+    }
+  }
+
+  drawUD(up) {
+    const [sx, ex] = [this.obj.battleBox.points[0].x, this.obj.battleBox.points[1].x];
+    const centerX = this.obj.battleBox.getCenter()[0];
+
+    let x = centerX;
+    const y = this.obj.battleBox.points[(up ? 1 : 0)].y + AlertBones_Padding * (up ? 1 : -1);
+    DrawBone[up ? "drawUp" : "drawDown"](x, y, this.length);
+    
+    x = centerX + AlertBones_interval;
+    while (x < ex) {
+      DrawBone[up ? "drawUp" : "drawDown"](x, y, this.length);
+      x += AlertBones_interval;
+    }
+
+    x = centerX - AlertBones_interval;
+    while (sx < x) {
+      DrawBone[up ? "drawUp" : "drawDown"](x, y, this.length);
+      x -= AlertBones_interval;
+    }
+  }
+
+  drawRL(right) {
+    const [sy, ey] = [this.obj.battleBox.points[0].y, this.obj.battleBox.points[1].y];
+    const centerY = this.obj.battleBox.getCenter()[1];
+
+    const x = this.obj.battleBox.points[(right ? 1 : 0)].x + AlertBones_Padding * (right ? 1 : -1);
+    let y = centerY;
+
+    DrawBone[right ? "drawRight" : "drawLeft"](x, y, this.length);
+    
+    y = centerY + AlertBones_interval;
+    while (y < ey) {
+      DrawBone[right ? "drawRight" : "drawLeft"](x, y, this.length);
+      y += AlertBones_interval;
+    }
+
+    y = centerY - AlertBones_interval;
+    while (sy < y) {
+      DrawBone[right ? "drawRight" : "drawLeft"](x, y, this.length);
+      y -= AlertBones_interval;
+    }
+  }
+
+  check() {
+    if (this.alert) {
+      return false;
+    }
+    
+    switch (this.direction) {
+      case    AlertBones_up: return  this.checkUD(true);
+      case  AlertBones_down: return this.checkUD(false);
+      case AlertBones_right: return  this.checkRL(true);
+      case  AlertBones_left: return this.checkRL(false);
+      default: break;
+    }
+  }
+
+  checkUD(up) {
+    this.x = this.obj.battleBox.getCenter()[0];
+    this.y = this.obj.battleBox.points[(up ? 1 : 0)].y;
+    
+    this.collider.l = this.collider.r = Math.floor((this.obj.battleBox.points[1].x - this.obj.battleBox.points[0].x) / 2);
+    if (up) {
+      this.collider.u = this.length + vbone_up_h + vbone_up_h - 4;
+      this.collider.d = 0;
+    } else {
+      this.collider.d = this.length + vbone_up_h + vbone_up_h - 4;
+      this.collider.u = 0;
+    }
+
+    return this.collider.AABB(this.obj.player.collider);
+  }
+
+  checkRL(right) {
+    this.x = this.obj.battleBox.points[(right ? 1 : 0)].x;
+    this.y = this.obj.battleBox.getCenter()[1];
+    
+    this.collider.u = this.collider.d = Math.floor((this.obj.battleBox.points[1].y - this.obj.battleBox.points[0].y) / 2);
+    if (right) {
+      this.collider.r = this.length + vbone_up_h + vbone_up_h - 4;
+      this.collider.l = 0;
+    } else {
+      this.collider.l = this.length + vbone_up_h + vbone_up_h - 4;
+      this.collider.r = 0;
+    }
+
+    return this.collider.AABB(this.obj.player.collider);
+  }
+}
+
+export { DrawBone, LineBone, RotBones };

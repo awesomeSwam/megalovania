@@ -8,6 +8,7 @@ import { BattleBox } from "../Objects/BattleBox.js";
 import { Heart } from "../Objects/Heart.js";
 import { Sans } from "../Objects/Sans.js";
 import { Generator } from "./Generator.js";
+import { DrawBone } from "../Objects/Bone.js";
 
 const Game = {
   canvas: null,
@@ -23,6 +24,7 @@ const Game = {
     Animation.ctx = this.ctx;
     Sprite.ctx = this.ctx;
     Debugger.ctx = this.ctx;
+    DrawBone.ctx = this.ctx;
     
     SpriteSheet.load();
 
@@ -63,6 +65,7 @@ const Game = {
     const now = Date.now();
     this.obj.dt = (now - this.lastUpdate) / 1000;
     this.lastUpdate = now;
+    console.log(this.obj.dt);
 
     this.t += this.obj.dt;
     if (this.t > 0.5) {

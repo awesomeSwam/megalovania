@@ -76,7 +76,6 @@ class Collider {
       Debugger.circle(r1_center.x, r1_center.y);
       
       Debugger.rectRot(this, b);
-      console.log(this.o)
     }
 
     return b;

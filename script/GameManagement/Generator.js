@@ -3,49 +3,49 @@ import { battleBoxLineWidth } from "../Objects/BattleBox.js";
 // import { GasterBlaster } from "../Objects/GasterBlaster.js";
 import { randomFloat } from "../Constants/GameMath.js";
 
-const battleBoxLineWidth_half = battleBoxLineWidth / 2 + 2;
+const LineBonePadding = battleBoxLineWidth / 2 + 2;
 const Generator = {
   obj: null,
 
   LineBone: {
     upLeft: function(speed, length = 20) {
       const [x, y] = Generator.obj.battleBox.getUpLeft();
-      return new LineBone(Generator.obj, x + battleBoxLineWidth_half, y + battleBoxLineWidth_half, speed, length, "down");
+      return new LineBone(Generator.obj, x + LineBonePadding, y + LineBonePadding, speed, length, "down");
     },
 
     upRight: function(speed, length = 20) {
       const [x, y] = Generator.obj.battleBox.getUpRight();
-      return new LineBone(Generator.obj, x - battleBoxLineWidth_half, y + battleBoxLineWidth_half, -speed, length, "down");
+      return new LineBone(Generator.obj, x - LineBonePadding, y + LineBonePadding, -speed, length, "down");
     },
 
     rightUp: function(speed, length = 20) {
       const [x, y] = Generator.obj.battleBox.getUpRight();
-      return new LineBone(Generator.obj, x - battleBoxLineWidth_half, y + battleBoxLineWidth_half, speed, length, "left");
+      return new LineBone(Generator.obj, x - LineBonePadding, y + LineBonePadding, speed, length, "left");
     },
     
     rightDown: function(speed, length = 20) {
       const [x, y] = Generator.obj.battleBox.getDownRight();
-      return new LineBone(Generator.obj, x - battleBoxLineWidth_half, y - battleBoxLineWidth_half, -speed, length, "left");
+      return new LineBone(Generator.obj, x - LineBonePadding, y - LineBonePadding, -speed, length, "left");
     },
 
     leftUp: function(speed, length = 20) {
       const [x, y] = Generator.obj.battleBox.getUpLeft();
-      return new LineBone(Generator.obj, x + battleBoxLineWidth_half, y + battleBoxLineWidth_half, speed, length, "right");
+      return new LineBone(Generator.obj, x + LineBonePadding, y + LineBonePadding, speed, length, "right");
     },
     
     leftDown: function(speed, length = 20) {
       const [x, y] = Generator.obj.battleBox.getDownLeft();
-      return new LineBone(Generator.obj, x + battleBoxLineWidth_half, y - battleBoxLineWidth_half, -speed, length, "right");
+      return new LineBone(Generator.obj, x + LineBonePadding, y - LineBonePadding, -speed, length, "right");
     },
 
     downLeft: function(speed, length = 20) {
       const [x, y] = Generator.obj.battleBox.getDownLeft();
-      return new LineBone(Generator.obj, x + battleBoxLineWidth_half, y - battleBoxLineWidth_half, speed, length, "up");
+      return new LineBone(Generator.obj, x + LineBonePadding, y - LineBonePadding, speed, length, "up");
     },
 
     downRight: function(speed, length = 20) {
       const [x, y] = Generator.obj.battleBox.getDownRight();
-      return new LineBone(Generator.obj, x - battleBoxLineWidth_half, y - battleBoxLineWidth_half, -speed, length, "up");
+      return new LineBone(Generator.obj, x - LineBonePadding, y - LineBonePadding, -speed, length, "up");
     }
   },
 

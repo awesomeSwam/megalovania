@@ -106,6 +106,13 @@ class BattleBox {
   getDownRight() {
     return [this.points[1].x, this.points[1].y];
   }
+
+  getSize() {
+    return [
+      this.points[1].x - this.points[0].x,
+      this.points[1].y - this.points[0].y
+    ];
+  }
 }
 
 export { BattleBox, battleBoxLineWidth };
