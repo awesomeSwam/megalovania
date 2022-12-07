@@ -1,106 +1,114 @@
 import { Sprite } from "../AssetsManagement/Sprite.js";
-import { Animator } from "../AssetsManagement/Animator.js";
+import { Animator } from "../Components/Animator.js";
+import { gameSpriteSheetData_json } from "../Constants/spriteSheetData.js";
+import { Debugger } from "../Components/Collider.js";
 
-import { gameSpriteSheetData_json } from "../AssetsManagement/SpriteSheet.js";
-const sans_leg_stand = {
-  w: gameSpriteSheetData_json.sans.sans_leg_stand[2],
-  h: gameSpriteSheetData_json.sans.sans_leg_stand[3]
-};
+const sans_leg_stand_w = gameSpriteSheetData_json.sans.sans_leg_stand[2];
+const sans_leg_stand_h = gameSpriteSheetData_json.sans.sans_leg_stand[3];
 
-const sans_body = {
-  w: gameSpriteSheetData_json.sans.sans_body_0[2],
-  h: gameSpriteSheetData_json.sans.sans_body_0[3]
-};
+const sans_body_w = gameSpriteSheetData_json.sans.sans_body_0[2];
+const sans_body_h = gameSpriteSheetData_json.sans.sans_body_0[3];
 
-const sans_face = {
-  w: gameSpriteSheetData_json.sans.sans_face_0[2],
-  h: gameSpriteSheetData_json.sans.sans_face_0[3]
-};
+const sans_face_w = gameSpriteSheetData_json.sans.sans_face_0[2];
+const sans_face_h = gameSpriteSheetData_json.sans.sans_face_0[3];
 
-const sans_Vswing = {
-  w: gameSpriteSheetData_json.sans.sans_swing_vertical[2],
-  h: gameSpriteSheetData_json.sans.sans_swing_vertical[3],
-  pw: 2,
-  ph: 2
-};
+const sans_Vswing_w = gameSpriteSheetData_json.sans.sans_swing_up[2];
+const sans_Vswing_h = gameSpriteSheetData_json.sans.sans_swing_up[3];
 
-const sans_Hswing = {
-  w: gameSpriteSheetData_json.sans.sans_swing_horizontal[2],
-  h: gameSpriteSheetData_json.sans.sans_swing_horizontal[3],
-  pw: 2,
-  ph: 2
-};
+const sans_Hswing_w = gameSpriteSheetData_json.sans.sans_swing_right[2];
+const sans_Hswing_h = gameSpriteSheetData_json.sans.sans_swing_right[3];
 
-const p_sv = { w: Math.floor(-sans_Vswing.w/2+4), h: Math.floor(-sans_Vswing.h+2) };
-const p_sh = { w: Math.floor(-sans_Hswing.w/2+45), h: Math.floor(-sans_Hswing.h+2) };
+const [ p_sv_w, p_sv_h ] = [ Math.floor(-sans_Vswing_w / 2 + 4), Math.floor(-sans_Vswing_h + 2) ];
+const [ p_sh_w, p_sh_h ] = [ Math.floor(-sans_Hswing_w / 2 + 45), Math.floor(-sans_Hswing_h + 2) ];
+const [ p_l1_w, p_l1_h ] = [ Math.floor(-sans_leg_stand_w / 2), Math.floor(-sans_leg_stand_h) ];
+const [ p_b0_w, p_b0_h ] = [ Math.floor(-sans_body_w / 2), Math.floor(-sans_leg_stand_h - sans_body_h) ];
+const [ p_f_w, p_f_h ] = [ Math.floor(-sans_face_w / 2), Math.floor(-sans_leg_stand_h - sans_body_h - sans_face_h) ];
 
-const p_l1 = { w: Math.floor(-sans_leg_stand.w/2), h: Math.floor(-sans_leg_stand.h) };
-const p_b0 = { w: Math.floor(-sans_body.w/2), h: Math.floor(-sans_leg_stand.h-sans_body.h) };
-const p_f = { w: Math.floor(-sans_face.w/2), h: Math.floor(-sans_leg_stand.h-sans_body.h-sans_face.h) };
-
-const sans_blue_states = [
-  { state: "up", anim: "sans_swing_vertical", flip: true },
-  { state: "down", anim: "sans_swing_vertical", flip: false },
-  // { state: "left", anim: "sans_swing_horizontal", flip: true },
-  // { state: "right", anim: "sans_swing_horizontal", flip: false },
+const sans_anim_states = [
+  { state: "none", anim: null },
+  { state: "right", anim: "sans_swing_right" },
+  { state: "left", anim: "sans_swing_left" },
+  { state: "down", anim: "sans_swing_down" },
+  { state: "up", anim: "sans_swing_up" },
 ];
 
 class Sans {
-  constructor(ctx, player) {
-    this.ctx = ctx;
+  constructor(obj) {
+    this.obj = obj;
+    this.ctx = obj.ctx;
+    this.player = obj.player;
+
     this.x = 600;
     this.y = 250;
 
-    this.player = player;
     this.setAnimations();
   }
 
   setAnimations() {
     this.animator = new Animator(this.ctx);
-    this.animator.addAnimation("sans_swing_horizontal", 0.06);
-    this.animator.addAnimation("sans_swing_vertical", 0.06);
+    this.animator.addAnimation("sans_swing_right", 0.1);
+    this.animator.addAnimation("sans_swing_left", 0.1);
+    this.animator.addAnimation("sans_swing_down", 0.1);
+    this.animator.addAnimation("sans_swing_up", 0.1);
 
-    this.sans_animation_flip = false;
-    this.sans_animation = "";
-    this.sans_padding = 0;
     this.sans_face = 0;
+    this.sans_anim_state = 0;
 
-    this.t = 0;
+    this.sans_padding = 0;
   }
 
-  update(dt) {
-    this.t += dt;
-    if (this.t > 3) {
-      this.t = 0;
+  swingAttack() {
+    this.animator.initalize();
+  }
 
-      const { state, anim, flip } = sans_blue_states[Math.floor(Math.random() * 2)];
-
-      this.sans_animation_flip = flip;
-      this.sans_animation = anim;
-
-      // this.player.changeBlueState(state);
-    }
-
-    if (this.sans_animation !== "") {
-      if (this.animator.update(this.sans_animation, dt, this.sans_animation_flip)) {
-        this.sans_animation = "";
-      }
-    } else {
-      this.sans_padding += dt;
+  update() {
+    if (this.sans_anim_state == 0) {
+      this.sans_padding += this.obj.dt;
       if (this.sans_padding > Math.PI) {
         this.sans_padding -= Math.PI;
+      }
+    } else {
+      if (this.animator.update(sans_anim_states[this.sans_anim_state].anim)) {
+        this.sans_anim_state = 0;
       }
     }
   }
 
   draw() {
+    if (this.sans_anim_state == 0) {
+      const paddingHor = Math.sin(6 * this.sans_padding) * 3;
+      const paddingVer = Math.sin(3 * this.sans_padding) * 3;
+      const paddingHed = Math.sin(18 * this.sans_padding) + 16;
+
+      Sprite.draw(
+        "sans_leg_stand",
+        this.x + p_l1_w,
+        this.y + p_l1_h
+      );
+      Sprite.draw(
+        "sans_body_0",
+        this.x + p_b0_w - paddingHor,
+        this.y + p_b0_h + paddingVer
+      );
+      Sprite.draw(
+        `sans_face_${this.sans_face}`,
+        this.x + p_f_w - paddingHor,
+        this.y + p_f_h + paddingVer + paddingHed
+      );
+    } else {
+      switch (this.sans_anim_state) {
+        default:
+          this.animator.play()
+      }
+    }
+
     if (this.sans_animation !== "") {
       switch (this.sans_animation) {
         case "sans_swing_vertical":
-          this.animator.Dplay(this.x + p_sv.w, this.y + p_sv.h);
+          this.animator.Dplay(this.x + p_sv_w, this.y + p_sv_h);
           break;
         case "sans_swing_horizontal":
-          this.animator.Dplay(this.x + p_sh.w, this.y + p_sh.h);  
+          this.animator.Dplay(this.x + p_sh_w, this.y + p_sh_h);  
           break;
         default:
           break;
@@ -110,7 +118,7 @@ class Sans {
       const paddingVer = Math.sin(3 * this.sans_padding) * 3;
       const paddingHed = Math.sin(18 * this.sans_padding) + 16;
       
-      Sprite.Ddraw(
+      Sprite.draw(
         this.ctx, "sans_leg_stand",
         this.x + p_l1.w,
         this.y + p_l1.h
@@ -127,13 +135,15 @@ class Sans {
       );
     }
 
-    this.ctx.strokeStyle = this.debugColor;
-    this.ctx.fillStyle = "yellow";
-    this.ctx.lineWidth = 1;
-    this.ctx.beginPath();
-    this.ctx.arc(this.x, this.y, 2, 0, 2 * Math.PI);
-    this.ctx.stroke();
-    this.ctx.fill();
+    if (Debugger.is) {
+      this.ctx.strokeStyle = "yellow";
+      this.ctx.fillStyle = "yellow";
+      this.ctx.lineWidth = 1;
+      this.ctx.beginPath();
+      this.ctx.arc(this.x, this.y, 2, 0, 2 * Math.PI);
+      this.ctx.stroke();
+      this.ctx.fill();
+    }
   }
 }
 

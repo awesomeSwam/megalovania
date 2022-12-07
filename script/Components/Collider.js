@@ -2,7 +2,7 @@ import { toRad } from "../Constants/GameMath.js";
 
 const Debugger = {
   ctx: null,
-  is: false,
+  is: true,
 
   circle: function(x, y) {
     this.ctx.strokeStyle = this.debugColor;
@@ -18,7 +18,7 @@ const Debugger = {
     this.ctx.strokeStyle = collision ? "red" : "green";
     this.ctx.lineWidth = 2;
     this.ctx.beginPath();
-    this.ctx.rect(col.x - col.l, col.y - col.u, col.l + col.r, col.u + col.d);
+    this.ctx.rect(col.o.x - col.l, col.o.y - col.u, col.l + col.r, col.u + col.d);
     this.ctx.stroke();
   },
 
@@ -26,10 +26,10 @@ const Debugger = {
     this.ctx.save();
     this.ctx.strokeStyle = collision ? "red" : "green";
     this.ctx.lineWidth = 2;
-    this.ctx.translate(col.x, col.y);
+    this.ctx.translate(col.o.x, col.o.y);
     this.ctx.rotate(col.o.angle * toRad);
     this.ctx.beginPath();
-    ctx.rect(-col.l, -col.u, col.l + col.r, col.u + col.d);
+    this.ctx.rect(-col.l, -col.u, col.l + col.r, col.u + col.d);
     this.ctx.stroke();
     this.ctx.restore();
   }
@@ -46,12 +46,18 @@ class Collider {
   }
 
   AABB(p) {
-    return (
+    const b = (
       this.o.x - this.l < p.o.x + p.r &&
       this.o.x + this.r > p.o.x - p.l &&
       this.o.y - this.u < p.o.y + p.d &&
       this.o.y + this.d > p.o.y - p.u
     );
+
+    if (Debugger.is) {
+      Debugger.rect(this, b);
+    }
+
+    return b;
   }
 
   OBB(p) {
@@ -65,12 +71,12 @@ class Collider {
     const b = this.SAT(r1, r2, centerVec) && this.SAT(r2, r1, centerVec);
 
     if (Debugger.is) {
-      r1.forEach(point => Debug.circle(point.x, point.y));
-      r2.forEach(point => Debug.circle(point.x, point.y));
-      Debug.circle(r1_center.x, r1_center.y);
-      Debug.circle(r2_center.x, r2_center.y);
+      r1.forEach(point => Debugger.circle(point.x, point.y));
 
-      Debug.rectRot(this, b);
+      Debugger.circle(r1_center.x, r1_center.y);
+      
+      Debugger.rectRot(this, b);
+      console.log(this.o)
     }
 
     return b;

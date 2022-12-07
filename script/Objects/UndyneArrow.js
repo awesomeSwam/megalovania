@@ -1,5 +1,5 @@
 import { Sprite } from "../AssetsManagement/Sprite.js";
-import { toRad } from "../Constants/GameMath.js";
+import { toRad, randomFloat } from "../Constants/GameMath.js";
 
 class UndyneArrow {
   constructor(obj, x, y, speed) {
@@ -18,6 +18,10 @@ class UndyneArrow {
   move() {
     this.x -= this.dirVecX * this.speed * this.obj.dt;
     this.y -= this.dirVecY * this.speed * this.obj.dt;
+  }
+
+  rotate() {
+    this.angle += this.obj.dt * 180;
   }
 
   angleToPlayer() {
@@ -43,7 +47,9 @@ class UndyneArrowRandom {
     super(obj, , y, speed);
   }
 
-
+  update() {
+    this.ctx.withinRange(this.x, this.y);
+  }
 }
 
 export { UndyneArrow };

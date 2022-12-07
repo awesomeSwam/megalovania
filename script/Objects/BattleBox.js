@@ -1,4 +1,4 @@
-import { lerp } from "../Constants/GameMath";
+import { lerp } from "../Constants/GameMath.js";
 
 const battleBoxLineWidth = 8;
 
@@ -11,24 +11,26 @@ class BattleBox {
 
     this.lineWidth = battleBoxLineWidth;
 
-    const w = this.canvas.width / 2;
-    const h = this.canvas.height / 2;
-    this.set(w - 200, h - 200, w + 200, h + 200);
-    
+    // const w = this.canvas.width / 2;
+    // const h = this.canvas.height / 2;
+    // this.setBox([
+    //   { x: w - 200, y: h - 200 },
+    //   { x: w + 200, y: h + 200 }
+    // ]);
     this.moving = false;
     this.lerpTime = 1;
     this.currentLerpTime = 0;
     this.startPoints = [
-      { x: 0, y: 0 },
-      { x: 0, y: 0 },
+      { x: 100, y: 100 },
+      { x: 600, y: 600 },
     ];
     this.endPoints = [
-      { x: 0, y: 0 },
-      { x: 0, y: 0 },
+      { x: 100, y: 100 },
+      { x: 600, y: 600 },
     ];
     this.points = [
-      { x: 0, y: 0 },
-      { x: 0, y: 0 },
+      { x: 100, y: 100 },
+      { x: 600, y: 600 },
     ];
   }
 
@@ -87,6 +89,22 @@ class BattleBox {
       Math.max(this.points[0].x + p, Math.min(this.points[1].x - p, x)),
       Math.max(this.points[0].y + p, Math.min(this.points[1].y - p, y))
     ];
+  }
+
+  getUpLeft() {
+    return [this.points[0].x, this.points[0].y];
+  }
+
+  getUpRight() {
+    return [this.points[1].x, this.points[0].y];
+  }
+
+  getDownLeft() {
+    return [this.points[0].x, this.points[1].y];
+  }
+
+  getDownRight() {
+    return [this.points[1].x, this.points[1].y];
   }
 }
 
