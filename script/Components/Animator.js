@@ -14,14 +14,17 @@ class Animator {
       animation: Animation.animations[animation],
       speed
     };
+
+    this.animation = null;
   }
 
-  initialize() {
+  initialize(animation) {
     this.idx = this.t = 0;
+    this.animation = animation;
   }
 
-  update(animation, dt) {
-    const a = this.animations[animation];
+  update(dt) {
+    const a = this.animations[this.animation];
     const l = a.animation.length;
 
     this.t += dt;

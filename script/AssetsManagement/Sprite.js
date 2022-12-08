@@ -48,11 +48,9 @@ const Sprite = {
 
   drawRotation: function(sprite, x, y, angle) {
     const s = Sprite.sprites[sprite];
-    y = Math.floor(x);
-    y = Math.floor(y);
-
+    
     this.ctx.save();
-    this.ctx.translate(x, y);
+    this.ctx.translate(Math.floor(x), Math.floor(y));
     this.ctx.rotate(angle * toRad);
     this.ctx.drawImage(
       s.spriteSheet,

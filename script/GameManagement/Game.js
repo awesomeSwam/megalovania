@@ -49,6 +49,7 @@ const Game = {
     this.sans = new Sans(this.obj);
     this.lineBone = [];
     this.rotBones = [];
+    this.alertBones = [];
     // this.undyneBone = [];
 
     this.lastUpdate = Date.now();
@@ -60,12 +61,14 @@ const Game = {
 
   t: 0,
   t1: 0,
+  t2: 0,
+  t3: 0,
 
   gameLoop: function() {
     const now = Date.now();
     this.obj.dt = (now - this.lastUpdate) / 1000;
     this.lastUpdate = now;
-    console.log(this.obj.dt);
+    // console.log(this.obj.dt);
 
     this.t += this.obj.dt;
     if (this.t > 0.5) {
@@ -81,6 +84,22 @@ const Game = {
       this.t1 = 0;
 
       this.rotBones.push(Generator.RotBones.targetPlayer());
+    }
+
+    this.t2 += this.obj.dt;
+    if (this.t2 > 2) {
+      this.t2 = 0;
+
+      for (let func of ["up", "down", "left", "right"]) {
+        this.alertBones.push(Generator.AlertBones[func](150, 1));
+      }
+    }
+
+    this.t3 += this.obj.dt;
+    if (this.t3 > 2) {
+      this.t3 = 0;
+
+      this.gasterBlaster.push(Generator.GasterBlaster.random());
     }
 
     this.update();
@@ -109,6 +128,22 @@ const Game = {
 
       p.check();
     });
+
+    this.alertBones.forEach((p, idx) => {
+      if (p.update()) {
+        this.alertBones.splice(idx, 1);
+      }
+
+      p.check();
+    });
+
+    this.gasterBlaster.forEach((p, idx) => {
+      if (p.update()) {
+        this.gasterBlaster.splice(idx, 1);
+      }
+
+      p.check();
+    })
   },
 
   draw: function() {
@@ -121,6 +156,8 @@ const Game = {
 
     this.lineBone.forEach(p => p.draw());
     this.rotBones.forEach(p => p.draw());
+    this.alertBones.forEach(p => p.draw());
+    this.gasterBlaster.forEach(p => p.draw());
   }
 }
 

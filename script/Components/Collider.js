@@ -5,7 +5,7 @@ const Debugger = {
   is: true,
 
   circle: function(x, y) {
-    this.ctx.strokeStyle = this.debugColor;
+    this.ctx.strokeStyle = "yellow";
     this.ctx.fillStyle = "yellow";
     this.ctx.lineWidth = 1;
     this.ctx.beginPath();

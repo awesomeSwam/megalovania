@@ -183,7 +183,7 @@ class RotBones extends Bone {
     this.bones = [];
     this.count = 6;
 
-    const l = this.length_half + vbone_up_h - 4;
+    const l = this.length_half + vbone_up_h + 6;
     
     let a = 0;
     for (let i = 0; i < 6; i++) {
@@ -248,17 +248,19 @@ const AlertBones_interval = 20;
 const AlertBones_Padding = battleBoxLineWidth / 2 + 2;
 
 class AlertBones {
-  constructor(obj, length, direction) {
+  constructor(obj, length, direction, time) {
     this.obj = obj;
     this.ctx = obj.ctx;
-    this.length = length;
+    this.max_length = length;
 
     this.direction = AlertBones_direction[direction];
-    this.speed = speed;
 
     this.alert = true;
     this.alertTime = 0;
-    this.length = 2;
+
+    this.t = 0;
+    this.time = time;
+    this.length = 0;
 
     this.x = 0;
     this.y = 0;
@@ -274,42 +276,50 @@ class AlertBones {
         this.alert = false;
       }
     } else {
-      this.length += 1;
+      this.t += this.obj.dt;
+      if (this.t > this.time) {
+        return true;
+      }
+
+      this.length = Math.sin(Math.PI / this.time * this.t) * this.max_length;
     }
+
+    return false;
   }
 
   draw() {
     if (this.alert) {
-      this.ctx.beginPath();
       this.ctx.strokeStyle = "red";
       this.ctx.lineWidth = 4;
+
+      this.ctx.beginPath();
       switch (this.direction) {
         case    AlertBones_up:
           this.ctx.rect(
             this.obj.battleBox.points[0].x,
-            this.obj.battleBox.points[1].y - this.length,
+            this.obj.battleBox.points[1].y - this.max_length,
             this.obj.battleBox.points[1].x - this.obj.battleBox.points[0].x,
-            this.length
+            this.max_length
           ); break;
         case  AlertBones_down:
           this.ctx.rect(
             this.obj.battleBox.points[0].x,
             this.obj.battleBox.points[0].y,
             this.obj.battleBox.points[1].x - this.obj.battleBox.points[0].x,
-            this.length
+            this.max_length
           ); break;
         case AlertBones_right:
           this.ctx.rect(
             this.obj.battleBox.points[0].x,
             this.obj.battleBox.points[0].y,
-            this.length,
+            this.max_length,
             this.obj.battleBox.points[1].y - this.obj.battleBox.points[0].y
           ); break;
         case  AlertBones_left:
           this.ctx.rect(
-            this.obj.battleBox.points[1].x - this.length,
+            this.obj.battleBox.points[1].x - this.max_length,
             this.obj.battleBox.points[0].y,
-            this.length,
+            this.max_length,
             this.obj.battleBox.points[1].y - this.obj.battleBox.points[0].y
           ); break;
         default: break;
@@ -353,7 +363,7 @@ class AlertBones {
     const [sy, ey] = [this.obj.battleBox.points[0].y, this.obj.battleBox.points[1].y];
     const centerY = this.obj.battleBox.getCenter()[1];
 
-    const x = this.obj.battleBox.points[(right ? 1 : 0)].x + AlertBones_Padding * (right ? 1 : -1);
+    const x = this.obj.battleBox.points[(right ? 0 : 1)].x + AlertBones_Padding * (right ? 1 : -1);
     let y = centerY;
 
     DrawBone[right ? "drawRight" : "drawLeft"](x, y, this.length);
@@ -402,7 +412,7 @@ class AlertBones {
   }
 
   checkRL(right) {
-    this.x = this.obj.battleBox.points[(right ? 1 : 0)].x;
+    this.x = this.obj.battleBox.points[(right ? 0 : 1)].x;
     this.y = this.obj.battleBox.getCenter()[1];
     
     this.collider.u = this.collider.d = Math.floor((this.obj.battleBox.points[1].y - this.obj.battleBox.points[0].y) / 2);
@@ -418,4 +428,4 @@ class AlertBones {
   }
 }
 
-export { DrawBone, LineBone, RotBones };
+export { DrawBone, LineBone, RotBones, AlertBones };

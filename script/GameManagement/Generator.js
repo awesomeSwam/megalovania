@@ -1,7 +1,7 @@
-import { LineBone, RotBones } from "../Objects/Bone.js";
+import { LineBone, RotBones, AlertBones } from "../Objects/Bone.js";
 import { battleBoxLineWidth } from "../Objects/BattleBox.js";
-// import { GasterBlaster } from "../Objects/GasterBlaster.js";
-import { randomFloat } from "../Constants/GameMath.js";
+import { randomInt, toRad } from "../Constants/GameMath.js";
+import { GasterBlaster } from "../Objects/GasterBlaster.js";
 
 const LineBonePadding = battleBoxLineWidth / 2 + 2;
 const Generator = {
@@ -55,11 +55,43 @@ const Generator = {
     }
   },
 
+  AlertBones: {
+    right: function(length, time) {
+      return new AlertBones(Generator.obj, length, "right", time);
+    },
+
+    left: function(length, time) {
+      return new AlertBones(Generator.obj, length, "left", time);
+    },
+
+    up: function(length, time) {
+      return new AlertBones(Generator.obj, length, "up", time);
+    },
+
+    down: function(length, time) {
+      return new AlertBones(Generator.obj, length, "down", time);
+    },
+  },
+
   GasterBlaster: {
-    random: function(obj, ) {
-      return new GasterBlaster(obj,
-        randomFloat(0, this.canvas.width),
-        randomFloat(0, this.canvas.height), angle, x, y, angle);
+    random: function() {
+      const x = randomInt(0, Generator.obj.canvas.width);
+      const y = randomInt(0, Generator.obj.canvas.height);
+      const angle = randomInt(0, 360);
+
+      const tx = randomInt(0, Generator.obj.canvas.width);
+      const ty = randomInt(0, Generator.obj.canvas.height);
+
+      const _x = x - Generator.obj.player.x;
+      const _y = y - Generator.obj.player.y;
+      const nor = Math.sqrt(_x * _x + _y * _y);
+  
+      const arcCos = Math.acos(_x / nor) / toRad;
+      const arcSin = Math.asin(_y / nor) / toRad;
+      
+      const tangle = (arcSin >= 0) ? arcCos : 360 - arcCos;
+      
+      return new GasterBlaster(Generator.obj, x, y, angle, tx, ty, tangle);
     }
   }
 }

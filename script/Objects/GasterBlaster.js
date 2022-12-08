@@ -1,6 +1,6 @@
-import { Animator } from "./AssetsManagement/Animator.js";
-import { Sprite } from "./AssetsManagement/Sprite.js";
-import { Collider } from "./Collider.js";
+import { Animator } from "../Components/Animator.js";
+import { Sprite } from "../AssetsManagement/Sprite.js";
+import { Collider } from "../Components/Collider.js";
 import { toRad, lerp } from "../Constants/GameMath.js";
 
 const GasterBlasterLazerTime = Math.PI / 3;
@@ -8,6 +8,8 @@ const GasterBlasterLazerTime = Math.PI / 3;
 const GasterBlaster_before = 0;
 const GasterBlaster_animation = 1;
 const GasterBlaster_after = 2;
+
+const GasterBlaster_lazer = 5000;
 
 class GasterBlaster {
   constructor(obj, x, y, angle, targetX, targetY, targetAngle) {
@@ -34,25 +36,27 @@ class GasterBlaster {
   update() {
     if (this.state == GasterBlaster_before) {
       if (!this.moveToTarget()) {
-        this.addLazer();
+        this.animator.initialize("gasterBlaster_attack");
         this.state++;
       }
-    } else { 
+    } else {
       this.moveBack();
       
-      if (this.state == GasterBlaster_animation && this.animator.update("gasterBlaster_attack", obj.dt)) {
+      if (this.state == GasterBlaster_animation && this.animator.update(this.obj.dt)) {
         this.state++;
-      }
-
-      if (this.state == GasterBlaster_after) {
-        this.alpha -= this.obj.dt;
-        if (this.alpha < 0) {
-          return true;
+      } else {
+        if (!this.lazer && this.animator.idx >= 3) {
+          this.addLazer();
         }
       }
 
+      if (this.state == GasterBlaster_after) {
+        this.alpha -= this.obj.dt * 1.2;
+        if (this.alpha < 0.2) this.alpha = 0.2;
+      }
+
       if (this.lazer && !this.updateLazer()) {
-        this.lazer = null;
+        return true;
       }
     }
 
@@ -61,6 +65,11 @@ class GasterBlaster {
 
   draw() {
     this.ctx.globalAlpha = this.alpha;
+
+    if (this.lazer) {
+      this.drawLazer();
+    }
+
     if (this.state == GasterBlaster_animation) {
       this.drawGasterBlaster();
     } else {
@@ -71,9 +80,6 @@ class GasterBlaster {
       }
     }
 
-    if (this.lazer) {
-      this.drawLazer();
-    }
     this.ctx.globalAlpha = 1;
   }
 
@@ -87,21 +93,22 @@ class GasterBlaster {
 
   setAnimations() {
     this.animator = new Animator(this.ctx);
-    this.animator.addAnimation("gasterBlaster_attack", 0.06);
+    this.animator.addAnimation("gasterBlaster_attack", 0.1);
   }
 
   moveToTarget() {
-    this.x += lerp(this.x, this.targetX, 0.3 * this.obj.dt);
-    this.y += lerp(this.y, this.targetY, 0.3 * this.obj.dt);
-    this.angle += lerp(this.angle, this.targetAngle, 0.3 * this.obj.dt);
+    this.x = lerp(this.x, this.targetX, 3 * this.obj.dt);
+    this.y = lerp(this.y, this.targetY, 3 * this.obj.dt);
+    this.angle = lerp(this.angle, this.targetAngle, 3 * this.obj.dt);
 
     const dx = this.x - this.targetX;
     const dy = this.y - this.targetY;
-    if (dx * dy < 25) {
-      this.rad = (this.angle + 90) * toRad;
+    if (dx * dx + dy * dy < 25) {
       this.x = this.targetX;
       this.y = this.targetY;
       this.angle = this.targetAngle;
+      this.rad = (this.angle + 90) * toRad;
+
       return false;
     }
 
@@ -119,38 +126,46 @@ class GasterBlaster {
   }
 
   drawGasterBlasterAttackBefore() {
-    Sprite.drawRotation(this.ctx, "gasterBlaster_attackBefore", this.x, this.y, this.angle);
+    Sprite.drawRotation("gasterBlaster_attackBefore", this.x, this.y, this.angle);
   }
 
   drawGasterBlasterAttackAfter() {
-    Sprite.drawRotation(this.ctx, "gasterBlaster_attackAfter", this.x, this.y, this.angle);
+    Sprite.drawRotation("gasterBlaster_attackAfter", this.x, this.y, this.angle);
   }
 
   addLazer() {
     this.lazer = {
       t: 0,
       w: 0,
-      l: 10000,
-      collider: new Collider(this, 0, 0, 0, 10000)
+      collider: new Collider(this, 0, 0, 0, GasterBlaster_lazer)
     }; 
   }
 
   updateLazer() {
     this.lazer.t += this.obj.dt;
+
     if (this.lazer.t >= GasterBlasterLazerTime) {
       return false;
     }
 
-    this.lazer.collider.l = this.lazer.collider.r = this.lazer.w = Math.sin(this.t * 3) * 50;
+    this.lazer.collider.l = this.lazer.collider.r = this.lazer.w = Math.cos(this.lazer.t * 1.5) * 80;
     return true;
   }
 
   drawLazer() {
+    if (this.lazer.w < 3) return ;
+
+    this.drawLine(120, this.lazer.w);
+    this.drawLine(100, this.lazer.w * 0.7);
+    this.drawLine(80, this.lazer.w * 0.4);
+  }
+
+  drawLine(step, width) {
     this.ctx.strokeStyle = "white";
-    this.ctx.lineWidth = this.lazer.w + this.lazer.w;
+    this.ctx.lineWidth = width + width;
     this.ctx.beginPath();
-    this.ctx.moveTo(this.x, this.y);
-    this.ctx.lineTo(this.x + Math.cos(this.rad) * this.l, this.y + Math.sin(this.rad) * this.l);
+    this.ctx.moveTo(this.x + Math.cos(this.rad) * step, this.y + Math.sin(this.rad) * step);
+    this.ctx.lineTo(this.x + Math.cos(this.rad) * GasterBlaster_lazer, this.y + Math.sin(this.rad) * GasterBlaster_lazer);
     this.ctx.stroke();
   }
 }

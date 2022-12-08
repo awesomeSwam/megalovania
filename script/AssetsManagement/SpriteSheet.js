@@ -15,7 +15,7 @@ const SpriteSheet = {
         if (data[4] == 1) {
           Sprite.addSprite(s, key, data);
         } else {
-          Animation.addAnimation(s, key, data);
+          Animation.addAnimation(s, key, data, ((data[4] < 0) ? true : false));
         }
       }
     }

@@ -17,8 +17,9 @@ const Animation = {
   },
 
   draw: function(animation, x, y, idx) {
-    if (a.reverse) idx = a.length - idx - 1;
     const a = this.animations[animation];
+    if (a.reverse) idx = a.length - idx - 1;
+
     x = Math.floor(x) - a.w / 2;
     y = Math.floor(y) - a.h / 2;
     
@@ -32,8 +33,9 @@ const Animation = {
   },
 
   drawCenter: function(animation, x, y, idx) {
-    if (a.reverse) idx = a.length - idx - 1;
     const a = this.animations[animation];
+    if (a.reverse) idx = a.length - idx - 1;
+    
     x = Math.floor(x);
     y = Math.floor(y);
   
@@ -47,8 +49,8 @@ const Animation = {
   },
 
   drawRotation: function(animation, x, y, angle, idx) {
-    if (a.reverse) idx = a.length - idx - 1;
     const a = Animation.animations[animation];
+    if (a.reverse) idx = a.length - idx - 1;
 
     this.ctx.save();
     this.ctx.translate(Math.floor(x), Math.floor(y));
