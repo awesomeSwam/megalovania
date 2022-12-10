@@ -31,17 +31,26 @@ const gameSpriteSheetData_json = {
     hbone_up                    : [0, 0, 12, 20, 1],
     hbone_down                  : [36, 0, 12, 20, 1],
   },
-
-  arrow                         : {
-    /*  sprites */
-    arrow                       : [0, 0, 32, 132, 1]
-  },
   
   vbone                         : {
     /*  sprites  */
     vbone                       : [0, 0, 48, 48, 1],
     vbone_up                    : [0, 0, 20, 12, 1],
     vbone_down                  : [0, 36, 20, 12, 1],
+  },
+
+  hbone_blue                    : {
+    /*  sprites  */
+    hbone_blue                  : [0, 0, 48, 48, 1],
+    hbone_blue_up               : [0, 0, 12, 20, 1],
+    hbone_blue_down             : [36, 0, 12, 20, 1],
+  },
+  
+  vbone_blue                    : {
+    /*  sprites  */
+    vbone_blue                  : [0, 0, 48, 48, 1],
+    vbone_blue_up               : [0, 0, 20, 12, 1],
+    vbone_blue_down             : [0, 36, 20, 12, 1],
   },
 
   sans                          : {

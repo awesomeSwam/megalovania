@@ -20,17 +20,9 @@ class BattleBox {
     this.moving = false;
     this.lerpTime = 1;
     this.currentLerpTime = 0;
-    this.startPoints = [
-      { x: 100, y: 100 },
-      { x: 600, y: 600 },
-    ];
-    this.endPoints = [
-      { x: 100, y: 100 },
-      { x: 600, y: 600 },
-    ];
-    this.points = [
-      { x: 100, y: 100 },
-      { x: 600, y: 600 },
+    this.startPoints = this.endPoints = this.points = [
+      { x: 640 - 250, y: 480 - 250 },
+      { x: 640 + 250, y: 480 + 250 },
     ];
   }
 

@@ -2,6 +2,7 @@ import { Animator } from "../Components/Animator.js";
 import { Sprite } from "../AssetsManagement/Sprite.js";
 import { Collider } from "../Components/Collider.js";
 import { toRad, lerp } from "../Constants/GameMath.js";
+import { Sound } from "../AssetsManagement/Sound.js";
 
 const GasterBlasterLazerTime = Math.PI / 3;
 
@@ -31,12 +32,14 @@ class GasterBlaster {
     this.state = GasterBlaster_before;
 
     this.setAnimations();
+    Sound.play("gasterBlaster_before", 0.6);
   }
 
   update() {
     if (this.state == GasterBlaster_before) {
       if (!this.moveToTarget()) {
         this.animator.initialize("gasterBlaster_attack");
+        Sound.play("gasterBlaster_after", 0.6);
         this.state++;
       }
     } else {
@@ -51,7 +54,7 @@ class GasterBlaster {
       }
 
       if (this.state == GasterBlaster_after) {
-        this.alpha -= this.obj.dt * 1.2;
+        this.alpha -= this.obj.dt;
         if (this.alpha < 0.2) this.alpha = 0.2;
       }
 
@@ -93,7 +96,7 @@ class GasterBlaster {
 
   setAnimations() {
     this.animator = new Animator(this.ctx);
-    this.animator.addAnimation("gasterBlaster_attack", 0.1);
+    this.animator.addAnimation("gasterBlaster_attack", 0.04);
   }
 
   moveToTarget() {
@@ -116,9 +119,11 @@ class GasterBlaster {
   }
 
   moveBack() {
-    this.x -= Math.cos(this.rad) * this.speed * this.obj.dt;
-    this.y -= Math.sin(this.rad) * this.speed * this.obj.dt;
-    this.speed += this.obj.dt * 1000;
+    if (!this.obj.ctx.withinRange(this.x, this.y)) {
+      this.x -= Math.cos(this.rad) * this.speed * this.obj.dt;
+      this.y -= Math.sin(this.rad) * this.speed * this.obj.dt;
+      this.speed += this.obj.dt * 1000;
+    }
   }
 
   drawGasterBlaster() {

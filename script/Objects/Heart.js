@@ -30,6 +30,8 @@ class Heart {
     this.collider = new Collider(this, heart_size - 6, heart_size - 6, heart_size - 6, heart_size - 6);
     this.platformerCollider = new Collider(this, heart_size, heart_size, heart_size, heart_size);
 
+    this.moved = false;
+
     /* soul state */
     this.blue_jumping = false;
     this.blue_velocity = 0;
@@ -38,6 +40,7 @@ class Heart {
   }
 
   update() {
+    this.moved = false;
     this.moveBlue();
     //this.moveRed();
   }
@@ -64,6 +67,8 @@ class Heart {
       const nordt = this.obj.dt * red_speed / Math.sqrt(dx * dx + dy * dy);
       this.x += dx * nordt;
       this.y += dy * nordt;
+
+      this.moved = true;
     }
 
     this.inRange();
@@ -80,6 +85,7 @@ class Heart {
 
       if (h) {
         this.x += moveDir[hState] * blue_hSpeed * this.obj.dt;
+        this.moved = true;
       }
 
       if (v) {
@@ -102,6 +108,7 @@ class Heart {
 
       if (v) {
         this.y += moveDir[vState] * blue_vSpeed * this.obj.dt;
+        this.moved = true;
       }
       
       if (h) {
@@ -123,6 +130,10 @@ class Heart {
 
     if (this.blue_velocity < 0) {
       this.blue_jumping = false;
+    }
+
+    if (this.blue_jumping) {
+      this.moved = true;
     }
 
     this.inRange();

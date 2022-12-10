@@ -9,6 +9,7 @@ import { Heart } from "../Objects/Heart.js";
 import { Sans } from "../Objects/Sans.js";
 import { Generator } from "./Generator.js";
 import { DrawBone } from "../Objects/Bone.js";
+import { Sound } from "../AssetsManagement/Sound.js";
 
 const Game = {
   canvas: null,
@@ -27,6 +28,7 @@ const Game = {
     DrawBone.ctx = this.ctx;
     
     SpriteSheet.load();
+    Sound.load();
 
     this.ctx.withinRange = (x, y) => (
       -200 > x || x > this.canvas.width + 200 ||
@@ -50,19 +52,21 @@ const Game = {
     this.lineBone = [];
     this.rotBones = [];
     this.alertBones = [];
-    // this.undyneBone = [];
+    this.lineBoneX = [];
 
     this.lastUpdate = Date.now();
   },
 
   start: function() {
     this.gameLoop();
+    Sound.play("megalovania");
   },
 
   t: 0,
   t1: 0,
   t2: 0,
   t3: 0,
+  t4: 0,
 
   gameLoop: function() {
     const now = Date.now();
@@ -71,11 +75,12 @@ const Game = {
     // console.log(this.obj.dt);
 
     this.t += this.obj.dt;
-    if (this.t > 0.5) {
+    if (this.t > 0.3) {
       this.t = 0;
       
       for (let func of [ "upLeft", "upRight", "rightUp", "rightDown", "leftUp", "leftDown", "downLeft", "downRight" ]) {
-        this.lineBone.push(Generator.LineBone[func](300, randomInt(20, 40)));
+        // this.lineBone.push(Generator.LineBone[func](300, randomInt(20, 40)));
+        this.lineBone.push(Generator.LineBone_blue[func](300, randomInt(20, 40)));
       }
     }
 
@@ -96,10 +101,23 @@ const Game = {
     }
 
     this.t3 += this.obj.dt;
-    if (this.t3 > 2) {
+    if (this.t3 > 0.4) {
       this.t3 = 0;
 
       this.gasterBlaster.push(Generator.GasterBlaster.random());
+      // this.gasterBlaster.push(Generator.GasterBlaster.left(3, 1));
+      // this.gasterBlaster.push(Generator.GasterBlaster.right(3, 1));
+      //       this.gasterBlaster.push(...Generator.GasterBlaster.leftAll(3));
+      // this.gasterBlaster.push(...Generator.GasterBlaster.rightAll(3));
+    }
+
+    this.t4 += this.obj.dt;
+    if (this.t4 > 0.5) {
+      this.t4 = 0;
+      
+      for (let func of [ "upLeft", "upRight", "rightUp", "rightDown", "leftUp", "leftDown", "downLeft", "downRight" ]) {
+        this.lineBone.push(Generator.LineBoneX[func](300, 8, 60, 100));
+      }
     }
 
     this.update();
@@ -143,7 +161,15 @@ const Game = {
       }
 
       p.check();
-    })
+    });
+
+    this.lineBoneX.forEach((p, idx) => {
+      if (p.update()) {
+        this.lineBoneX.splice(idx, 1);
+      }
+      
+      p.check();
+    });
   },
 
   draw: function() {
@@ -158,6 +184,7 @@ const Game = {
     this.rotBones.forEach(p => p.draw());
     this.alertBones.forEach(p => p.draw());
     this.gasterBlaster.forEach(p => p.draw());
+    this.lineBoneX.forEach(p => p.draw());
   }
 }
 
