@@ -32,14 +32,14 @@ class GasterBlaster {
     this.state = GasterBlaster_before;
 
     this.setAnimations();
-    Sound.play("gasterBlaster_before", 0.6);
+    Sound.play("gasterBlaster_before");
   }
 
   update() {
     if (this.state == GasterBlaster_before) {
       if (!this.moveToTarget()) {
         this.animator.initialize("gasterBlaster_attack");
-        Sound.play("gasterBlaster_after", 0.6);
+        Sound.play("gasterBlaster_after");
         this.state++;
       }
     } else {

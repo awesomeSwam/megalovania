@@ -12,10 +12,8 @@ const Sound = {
     }
   },
 
-  play: function(sound, volume = 1) {
-    const a = new Audio(soundData_json[sound]);
-    a.volume = volume;
-    a.play();
+  play: function(sound) {
+    this.sounds[sound].cloneNode(true).play();
   }
 };
 
