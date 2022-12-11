@@ -47,6 +47,7 @@ const Game = {
     Generator.obj = this.obj;
 
     this.gasterBlaster = [];
+    this.tornado = [];
     this.platformer = [];
     this.sans = new Sans(this.obj);
     this.lineBone = [];
@@ -67,6 +68,7 @@ const Game = {
   t2: 0,
   t3: 0,
   t4: 0,
+  t5: 0,
 
   gameLoop: function() {
     const now = Date.now();
@@ -100,24 +102,30 @@ const Game = {
       }
     }
 
-    this.t3 += this.obj.dt;
-    if (this.t3 > 0.4) {
-      this.t3 = 0;
+    // this.t3 += this.obj.dt;
+    // if (this.t3 > 0.4) {
+    //   this.t3 = 0;
 
-      this.gasterBlaster.push(Generator.GasterBlaster.random());
-      // this.gasterBlaster.push(Generator.GasterBlaster.left(3, 1));
-      // this.gasterBlaster.push(Generator.GasterBlaster.right(3, 1));
-      //       this.gasterBlaster.push(...Generator.GasterBlaster.leftAll(3));
-      // this.gasterBlaster.push(...Generator.GasterBlaster.rightAll(3));
-    }
+    //   this.gasterBlaster.push(Generator.GasterBlaster.random());
+    //   // this.gasterBlaster.push(Generator.GasterBlaster.left(3, 1));
+    //   // this.gasterBlaster.push(Generator.GasterBlaster.right(3, 1));
+    //   //       this.gasterBlaster.push(...Generator.GasterBlaster.leftAll(3));
+    //   // this.gasterBlaster.push(...Generator.GasterBlaster.rightAll(3));
+    // }
 
     this.t4 += this.obj.dt;
-    if (this.t4 > 0.5) {
+    if (this.t4 > 2) {
       this.t4 = 0;
       
       for (let func of [ "upLeft", "upRight", "rightUp", "rightDown", "leftUp", "leftDown", "downLeft", "downRight" ]) {
         this.lineBone.push(Generator.LineBoneX[func](300, 8, 60, 100));
       }
+    }
+
+    this.t5 += this.obj.dt;
+    if (this.t5 > 20) {
+      this.t5 = 0;
+      this.tornado.push(Generator.GasterBlaster.Tornado(2, 36, 2.5));
     }
 
     this.update();
@@ -170,6 +178,12 @@ const Game = {
       
       p.check();
     });
+    
+    this.tornado.forEach((p, idx) => {
+      if (p.update()) {
+        this.tornado.splice(idx, 1);
+      }
+    });
   },
 
   draw: function() {
@@ -182,9 +196,10 @@ const Game = {
 
     this.lineBone.forEach(p => p.draw());
     this.rotBones.forEach(p => p.draw());
+    this.lineBoneX.forEach(p => p.draw());
     this.alertBones.forEach(p => p.draw());
     this.gasterBlaster.forEach(p => p.draw());
-    this.lineBoneX.forEach(p => p.draw());
+    this.tornado.forEach(p => p.draw());
   }
 }
 

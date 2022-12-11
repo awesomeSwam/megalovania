@@ -1,7 +1,7 @@
 import { LineBone, BlueLineBone, LineBoneX, RotBones, AlertBones } from "../Objects/Bone.js";
 import { battleBoxLineWidth } from "../Objects/BattleBox.js";
 import { randomInt, toRad } from "../Constants/GameMath.js";
-import { GasterBlaster } from "../Objects/GasterBlaster.js";
+import { GasterBlaster, GasterBlaster_half, GasterBlasterTornado } from "../Objects/GasterBlaster.js";
 
 const LineBonePadding = battleBoxLineWidth / 2 + 2;
 const Generator = {
@@ -211,8 +211,73 @@ const Generator = {
       }
 
       return ret;
+    },
+
+    Tornado: function(loop, cnt, time) {
+      return new GasterBlasterTornado(Generator.obj, loop, cnt, time);
     }
-  }
+  },
+
+  GasterBlaster_half: {
+    random: function() {
+      const x = randomInt(0, Generator.obj.canvas.width);
+      const y = randomInt(0, Generator.obj.canvas.height);
+      const angle = randomInt(0, 360);
+
+      const tx = randomInt(0, Generator.obj.canvas.width);
+      const ty = randomInt(0, Generator.obj.canvas.height);
+
+      const _x = tx - Generator.obj.player.x;
+      const _y = ty - Generator.obj.player.y;
+      const nor = Math.sqrt(_x * _x + _y * _y);
+
+      const arcCos = Math.acos(_x / nor) / toRad;
+      const arcSin = Math.asin(_y / nor) / toRad;
+      const tangle = (arcSin >= 0) ? arcCos : 360 - arcCos;
+
+      return new GasterBlaster_half(Generator.obj, x, y, angle, tx, ty, tangle + 90);
+    },
+
+    left: function(split, idx) {
+      const l = (Generator.obj.battleBox.points[1].y - Generator.obj.battleBox.points[0].y) / split;
+      const x = 0, y = 0, angle = 0;
+      const [tx, ty] = Generator.obj.battleBox.getUpLeft();
+      const tangle = 180;
+
+      return new GasterBlaster_half(Generator.obj, x, y, angle + 90, tx - 50, ty + l * idx, tangle + 90);
+    },
+
+    right: function(split, idx) {
+      const l = (Generator.obj.battleBox.points[1].y - Generator.obj.battleBox.points[0].y) / split;
+      const x = Generator.obj.canvas.width, y = 0, angle = 180;
+      const [tx, ty] = Generator.obj.battleBox.getUpRight();
+      const tangle = 0;
+
+      return new GasterBlaster_half(Generator.obj, x, y, angle + 90, tx + 50, ty + l * idx, tangle + 90);
+    },
+
+    leftAll: function(split) {
+      let ret = []; split--;
+      for (let i = 0; i <= split; i++) {
+        ret.push(this.left(split, i));
+      }
+
+      return ret;
+    },
+
+    rightAll: function(split) {
+      let ret = []; split--;
+      for (let i = 0; i <= split; i++) {
+        ret.push(this.right(split, i));
+      }
+
+      return ret;
+    },
+
+    Tornado: function(loop, cnt, time) {
+      return new GasterBlasterTornado(Generator.obj, loop, cnt, time);
+    }
+  },
 }
 
 export { Generator };

@@ -24,6 +24,15 @@ const gameSpriteSheetData_json = {
     /*  animations  */
     gasterBlaster_attack        : [0, 0, 172 + padding, 228 + padding, 6],
   },
+
+  gasterBlaster_half            : {
+    /*  sprites  */
+    gasterBlaster_half_before   : [(86 + padding) * 0, 0, 86, 228, 1],
+    gasterBlaster_half_after    : [(86 + padding) * 5, 0, 86, 228, 1],
+
+    /*  animations  */
+    gasterBlaster_half_attack   : [0, 0, 86 + padding, 228 + padding, 6],
+  },
   
   hbone                         : {
     /*  sprites  */
