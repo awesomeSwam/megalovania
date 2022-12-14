@@ -4,13 +4,13 @@ import { Collider } from "../Components/Collider.js";
 import { toRad, lerp } from "../Constants/GameMath.js";
 import { Sound } from "../AssetsManagement/Sound.js";
 
-const GasterBlasterLazerTime = Math.PI / 3;
-
 const GasterBlaster_before = 0;
 const GasterBlaster_animation = 1;
 const GasterBlaster_after = 2;
 
 const GasterBlaster_lazer = 5000;
+
+const gasterBlaster_cos = (Math.PI / 2);
 
 class GasterBlaster {
   constructor(obj, x, y, angle, targetX, targetY, targetAngle) {
@@ -98,7 +98,7 @@ class GasterBlaster {
     this.animator = new Animator(this.ctx);
     this.animator.addAnimation("gasterBlaster_attack", 0.04);
   }
-
+  
   moveToTarget() {
     this.x = lerp(this.x, this.targetX, 3 * this.obj.dt);
     this.y = lerp(this.y, this.targetY, 3 * this.obj.dt);
@@ -149,11 +149,10 @@ class GasterBlaster {
   updateLazer() {
     this.lazer.t += this.obj.dt;
 
-    if (this.lazer.t >= GasterBlasterLazerTime) {
-      return false;
-    }
+    if (this.lazer.t >= 1) return false;
 
-    this.lazer.collider.l = this.lazer.collider.r = this.lazer.w = Math.cos(this.lazer.t * 1.5) * 80;
+    this.lazer.collider.l = this.lazer.collider.r = this.lazer.w = Math.cos(this.lazer.t * gasterBlaster_cos) * 70;
+    return true;
   }
 
   drawLazer() {
@@ -311,11 +310,9 @@ class GasterBlaster_half {
   updateLazer() {
     this.lazer.t += this.obj.dt;
 
-    if (this.lazer.t >= Math.PI / 4) {
-      return false;
-    }
+    if (this.lazer.t >= 1) return false;
 
-    this.lazer.collider.l = this.lazer.collider.r = this.lazer.w = Math.cos(this.lazer.t * 2.5) * 30;
+    this.lazer.collider.l = this.lazer.collider.r = this.lazer.w = Math.cos(this.lazer.t * gasterBlaster_cos) * 35;
     return true;
   }
 

@@ -20,8 +20,6 @@ const Sprite = {
 
   draw: function(sprite, x, y) {
     const s = Sprite.sprites[sprite];
-    x = Math.floor(x);
-    y = Math.floor(y);
 
     this.ctx.drawImage(
       s.spriteSheet,
@@ -34,14 +32,12 @@ const Sprite = {
 
   drawCenter: function(sprite, x, y) {
     const s = this.sprites[sprite];
-    x = Math.floor(x) - s.w / 2;
-    y = Math.floor(y) - s.h / 2;
 
     this.ctx.drawImage(
       s.spriteSheet,
       s.x, s.y,
       s.w, s.h,
-      x, y,
+      x - s.w / 2, y - s.h / 2,
       s.w, s.h
     );
   },
@@ -50,7 +46,7 @@ const Sprite = {
     const s = Sprite.sprites[sprite];
     
     this.ctx.save();
-    this.ctx.translate(Math.floor(x), Math.floor(y));
+    this.ctx.translate(x, y);
     this.ctx.rotate(angle * toRad);
     this.ctx.drawImage(
       s.spriteSheet,

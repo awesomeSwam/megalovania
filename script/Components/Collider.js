@@ -2,7 +2,7 @@ import { toRad } from "../Constants/GameMath.js";
 
 const Debugger = {
   ctx: null,
-  is: true,
+  is: false,
 
   circle: function(x, y) {
     this.ctx.strokeStyle = "yellow";

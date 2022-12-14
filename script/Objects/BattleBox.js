@@ -2,6 +2,9 @@ import { lerp } from "../Constants/GameMath.js";
 
 const battleBoxLineWidth = 8;
 
+const centerX = 640;
+const centerY = 500;
+
 class BattleBox {
   constructor(obj) {
     this.obj = obj;
@@ -20,22 +23,20 @@ class BattleBox {
     this.moving = false;
     this.lerpTime = 1;
     this.currentLerpTime = 0;
-    this.startPoints = this.endPoints = this.points = [
-      { x: 640 - 250, y: 480 - 250 },
-      { x: 640 + 250, y: 480 + 250 },
-    ];
+    this.setBoxSize(200, 200);
   }
 
   update() {
     if (this.moving) {
       this.currentLerpTime += this.obj.dt;
       if (this.currentLerpTime > this.lerpTime) {
-        this.currentLerpTime = this.lerpTime;
         this.moving = false;
         for (let i = 0; i < 2; i++) {
           this.points[i].x = this.endPoints[i].x;
           this.points[i].y = this.endPoints[i].y;
         }
+
+        return ;
       }
 
       const perc = this.currentLerpTime / this.lerpTime;
@@ -44,6 +45,21 @@ class BattleBox {
         this.points[i].y = lerp(this.startPoints[i].y, this.endPoints[i].y, perc);
       }
     }
+  }
+
+  setBoxSize(width, height) {
+    this.startPoints = [
+      { x: centerX - width, y: centerY - height },
+      { x: centerX + width, y: centerY + height },
+    ];
+    this.endPoints = [
+      { x: centerX - width, y: centerY - height },
+      { x: centerX + width, y: centerY + height },
+    ];
+    this.points = [
+      { x: centerX - width, y: centerY - height },
+      { x: centerX + width, y: centerY + height },
+    ];
   }
 
   setBox(newPoints, lerpTime = 1) {
@@ -72,6 +88,21 @@ class BattleBox {
     this.ctx.strokeStyle = "white";
     this.ctx.lineWidth = this.lineWidth;
     this.ctx.rect(this.points[0].x, this.points[0].y, this.points[1].x - this.points[0].x, this.points[1].y - this.points[0].y);
+    this.ctx.stroke();
+
+    const [x, y] = this.getCenter();
+    this.drawLine(x, this.points[0].y - 4, x, 0);
+    this.drawLine(x, this.points[1].y + 4, x, this.obj.canvas.height);
+    this.drawLine(this.points[0].x - 4, y, 0, y);
+    this.drawLine(this.points[1].x + 4, y, this.obj.canvas.width, y);
+  }
+
+  drawLine(x, y, dx, dy) {
+    this.ctx.beginPath();
+    this.ctx.strokeStyle = "black";
+    this.ctx.lineWidth = 1500;
+    this.ctx.moveTo(x, y);
+    this.ctx.lineTo(dx, dy);
     this.ctx.stroke();
   }
 

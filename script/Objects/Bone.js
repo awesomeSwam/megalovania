@@ -1,5 +1,5 @@
 import { Sprite } from "../AssetsManagement/Sprite.js";
-import { gameSpriteSheetData_json } from "../Constants/spriteSheetData.js";
+import { gameSpriteSheetData_json, padding } from "../Constants/spriteSheetData.js";
 import { toRad } from "../Constants/GameMath.js";
 import { Debugger, Collider } from "../Components/Collider.js";
 import { battleBoxLineWidth } from "../Objects/BattleBox.js";
@@ -448,7 +448,9 @@ const AlertBones_right = 2;
 const AlertBones_left = 3;
 const AlertBones_alertTime = 1;
 const AlertBones_interval = 20;
-const AlertBones_Padding = battleBoxLineWidth / 2 + 2;
+const AlertBones_Padding_h = battleBoxLineWidth / 2 + 2 - 20;
+const AlertBones_Padding_v = battleBoxLineWidth / 2 - 2 + 20;
+
 
 class AlertBones {
   constructor(obj, length, direction, time) {
@@ -492,7 +494,7 @@ class AlertBones {
     return false;
   }
 
-  draw() {
+  drawAlert() {
     if (this.alert) {
       this.ctx.strokeStyle = "red";
       this.ctx.lineWidth = 4;
@@ -530,7 +532,11 @@ class AlertBones {
         default: break;
       }
       this.ctx.stroke();
-    } else {
+    }
+  }
+
+  draw() {
+    if (!this.alert) {
       switch (this.direction) {
         case    AlertBones_up:  this.drawUD(true); break;
         case  AlertBones_down: this.drawUD(false); break;
@@ -548,7 +554,7 @@ class AlertBones {
     const centerX = this.obj.battleBox.getCenter()[0];
 
     let x = centerX;
-    const y = this.obj.battleBox.points[(up ? 1 : 0)].y + AlertBones_Padding * (up ? 1 : -1);
+    const y = this.obj.battleBox.points[(up ? 1 : 0)].y + AlertBones_Padding_v * (up ? 1 : -1);
     DrawBone[up ? "drawUp" : "drawDown"](x, y, this.length);
     
     x = centerX + AlertBones_interval;
@@ -568,7 +574,7 @@ class AlertBones {
     const [sy, ey] = [this.obj.battleBox.points[0].y, this.obj.battleBox.points[1].y];
     const centerY = this.obj.battleBox.getCenter()[1];
 
-    const x = this.obj.battleBox.points[(right ? 0 : 1)].x + AlertBones_Padding * (right ? 1 : -1);
+    const x = this.obj.battleBox.points[(right ? 0 : 1)].x + AlertBones_Padding_h * (right ? 1 : -1);
     let y = centerY;
 
     DrawBone[right ? "drawRight" : "drawLeft"](x, y, this.length);
@@ -606,10 +612,10 @@ class AlertBones {
     
     this.collider.l = this.collider.r = Math.floor((this.obj.battleBox.points[1].x - this.obj.battleBox.points[0].x) / 2);
     if (up) {
-      this.collider.u = this.length + vbone_up_h + vbone_up_h - 4;
+      this.collider.u = this.length + vbone_up_h + vbone_up_h - 30;
       this.collider.d = 0;
     } else {
-      this.collider.d = this.length + vbone_up_h + vbone_up_h - 4;
+      this.collider.d = this.length + vbone_up_h + vbone_up_h - 30;
       this.collider.u = 0;
     }
 
@@ -622,10 +628,10 @@ class AlertBones {
     
     this.collider.u = this.collider.d = Math.floor((this.obj.battleBox.points[1].y - this.obj.battleBox.points[0].y) / 2);
     if (right) {
-      this.collider.r = this.length + vbone_up_h + vbone_up_h - 4;
+      this.collider.r = this.length + vbone_up_h + vbone_up_h - 24;
       this.collider.l = 0;
     } else {
-      this.collider.l = this.length + vbone_up_h + vbone_up_h - 4;
+      this.collider.l = this.length + vbone_up_h + vbone_up_h - 24;
       this.collider.r = 0;
     }
 

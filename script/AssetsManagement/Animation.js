@@ -11,7 +11,7 @@ const Animation = {
       y: data[1],
       w: data[2],
       h: data[3],
-      length: data[4],
+      length: reverse ? -data[4] : data[4],
       reverse
     };
   },
@@ -19,9 +19,6 @@ const Animation = {
   draw: function(animation, x, y, idx) {
     const a = this.animations[animation];
     if (a.reverse) idx = a.length - idx - 1;
-
-    x = Math.floor(x) - a.w / 2;
-    y = Math.floor(y) - a.h / 2;
     
     this.ctx.drawImage(
       a.spriteSheet,
@@ -36,14 +33,11 @@ const Animation = {
     const a = this.animations[animation];
     if (a.reverse) idx = a.length - idx - 1;
     
-    x = Math.floor(x);
-    y = Math.floor(y);
-  
     this.ctx.drawImage(
       a.spriteSheet,
       a.x + a.w * idx, a.y,
       a.w, a.h,
-      x, y,
+      x - a.w / 2, y - a.h / 2,
       a.w, a.h
     );
   },
@@ -53,7 +47,7 @@ const Animation = {
     if (a.reverse) idx = a.length - idx - 1;
 
     this.ctx.save();
-    this.ctx.translate(Math.floor(x), Math.floor(y));
+    this.ctx.translate(x, y);
     this.ctx.rotate(angle * toRad);
     this.ctx.drawImage(
       a.spriteSheet,

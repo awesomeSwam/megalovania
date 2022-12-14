@@ -47,7 +47,7 @@ class Animator {
   }
 
   playCenter(x, y) {
-    Animation.playCenter(this.animation, x, y, this.idx);
+    Animation.drawCenter(this.animation, x, y, this.idx);
   }
 
   playRotation(x, y, angle) {

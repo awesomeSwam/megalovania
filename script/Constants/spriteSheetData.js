@@ -90,10 +90,10 @@ const gameSpriteSheetData_json = {
     sans_leg_sit                : [883, 92, 155, 51, 1],
     
     /*  animations  */
-    sans_swing_right         : [0, 200, 186 + padding, 210 + padding, 5],
-    sans_swing_left         : [0, 200, 186 + padding, 210 + padding, -5],
-    sans_swing_down       : [0, 412, 288 + padding, 144 + padding, 5],
-    sans_swing_up       : [0, 412, 288 + padding, 144 + padding, -5],
+    sans_swing_down         : [0, 200, 186 + padding, 210 + padding, 5],
+    sans_swing_up         : [0, 200, 186 + padding, 210 + padding, -5],
+    sans_swing_right       : [0, 412, 288 + padding, 144 + padding, 5],
+    sans_swing_left       : [0, 412, 288 + padding, 144 + padding, -5],
   },
 
 };

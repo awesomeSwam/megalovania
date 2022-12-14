@@ -2,6 +2,7 @@ import { KeyListener } from "../InputManagement/KeyListener.js";
 import { Sprite } from "../AssetsManagement/Sprite.js";
 import { battleBoxLineWidth } from "./BattleBox.js";
 import { Debugger, Collider } from "../Components/Collider.js";
+import { Sound } from "../AssetsManagement/Sound.js";
 
 const moveDir = {
   a: -1,
@@ -12,12 +13,20 @@ const moveDir = {
 
 const heart_size = 16;
 
-const red_speed = 200;
+const red_speed = 400;
 
-const blue_vSpeed = 400;
+const blue_vSpeed = 460;
+const blue_gravity = 440;
 const blue_hSpeed = 300;
 
 const padding = heart_size + battleBoxLineWidth / 2;
+
+const upperKey = {
+  right: "a",
+  left: "d",
+  up: "s",
+  down: "w"
+};
 
 class Heart {
   constructor(obj) {
@@ -32,23 +41,40 @@ class Heart {
 
     this.moved = false;
 
+    this.state = "red";
+
     /* soul state */
     this.blue_jumping = false;
     this.blue_velocity = 0;
     this.blue_state = "down";
     this.blue_onPlatformer = false;
+    this.blue_slam = false;
+  }
+
+  changeState(state) {
+    this.state = state;
+    if (state == "blue") {
+      this.blue_jumping = false;
+      this.blue_velocity = 0;
+      this.blue_state = "down";
+      this.blue_onPlatformer = false;
+    }
   }
 
   update() {
     this.moved = false;
-    this.moveBlue();
-    //this.moveRed();
+    if (this.state == "blue") {
+      this.moveBlue();
+    } else {
+      this.moveRed();
+    }
   }
 
   changeBlueState(state) {
-    this.blue_state = blue_states[state];
+    this.blue_state = state;
     this.blue_velocity = -1000;
     this.blue_jumping = false;
+    this.blue_slam = true;
   }
 
   inRange() {
@@ -77,10 +103,11 @@ class Heart {
   moveBlue() {
     const hState = KeyListener.keys.horizontal.state;
     const vState = KeyListener.keys.vertical.state;
-    const h = KeyListener.keys.horizontal[hState];
-    const v = KeyListener.keys.vertical[vState];
 
     if (this.blue_state == "up" || this.blue_state == "down") {
+      const h = KeyListener.keys.horizontal[hState];
+      const v = KeyListener.keys.vertical[vState] && vState == upperKey[this.blue_state];
+
       const isUp = this.blue_state == "up";
 
       if (h) {
@@ -90,6 +117,7 @@ class Heart {
 
       if (v) {
         const isGrounded = Math.floor(this.y) == Math.floor(isUp ? this.battleBox.points[0].y + padding : this.battleBox.points[1].y - padding);
+        if (isGrounded && this.blue_slam) { Sound.play("slam"); this.blue_slam = false; }
         if (isGrounded || this.blue_onPlatformer) {
           this.blue_velocity = blue_vSpeed;
           this.blue_jumping = true;
@@ -101,9 +129,12 @@ class Heart {
         }
       }
       
-      this.blue_velocity -= blue_vSpeed * this.obj.dt;
+      this.blue_velocity -= blue_gravity * this.obj.dt;
       this.y += this.blue_velocity * this.obj.dt * (isUp ? 1 : -1);
     } else {
+      const v = KeyListener.keys.vertical[vState];
+      const h = KeyListener.keys.horizontal[hState] && hState == upperKey[this.blue_state];
+
       const isLeft = this.blue_state == "left";
 
       if (v) {
@@ -113,6 +144,7 @@ class Heart {
       
       if (h) {
         const isGrounded = Math.floor(this.x) == Math.floor(isLeft ? this.battleBox.points[0].x + padding : this.battleBox.points[1].x - padding);
+        if (isGrounded && this.blue_slam) { Sound.play("slam"); this.blue_slam = false; }
         if (isGrounded || this.blue_onPlatformer) {
           this.blue_velocity = blue_vSpeed;
           this.blue_jumping = true;
@@ -124,7 +156,7 @@ class Heart {
         }
       }
 
-      this.blue_velocity -= blue_hSpeed * this.obj.dt;
+      this.blue_velocity -= blue_gravity * this.obj.dt;
       this.x += this.blue_velocity * this.obj.dt * (isLeft ? 1 : -1);
     }
 
@@ -141,7 +173,15 @@ class Heart {
   }
 
   draw() {
-    Sprite.drawCenter(`heart_blue_${this.blue_state}`, this.x, this.y);
+    switch (this.state) {
+      case "red":
+        Sprite.drawCenter("heart_red_down", this.x, this.y);
+        break;
+      case "blue":
+        Sprite.drawCenter(`heart_blue_${this.blue_state}`, this.x, this.y);
+        break;
+      default: break;
+    }
 
     if (Debugger.is) {
       Debugger.rect(this.collider);
