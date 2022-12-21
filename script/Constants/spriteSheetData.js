@@ -78,9 +78,9 @@ const gameSpriteSheetData_json = {
     sans_face_11                : [(96 + padding) * 11, 0, 96, 90, 1],
     sans_face_12                : [(96 + padding) * 12, 0, 96, 90, 1],
 
-    sans_head_sweat_0           : [(96 + padding) * 0, 92, 96, 18, 1],
-    sans_head_sweat_1           : [(96 + padding) * 1, 92, 96, 18, 1],
-    sans_head_sweat_2           : [(96 + padding) * 2, 92, 96, 18, 1],
+    sans_head_sweat_0           : [(96 + padding) * 0, 92, 96, 28, 1],
+    sans_head_sweat_1           : [(96 + padding) * 1, 92, 96, 28, 1],
+    sans_head_sweat_2           : [(96 + padding) * 2, 92, 96, 28, 1],
 
     sans_body_0                 : [0, 120, 162, 75, 1],
     sans_damaged_body_0         : [294, 92, 153, 104, 1],
@@ -90,12 +90,16 @@ const gameSpriteSheetData_json = {
     sans_leg_sit                : [883, 92, 155, 51, 1],
     
     /*  animations  */
-    sans_swing_down         : [0, 200, 186 + padding, 210 + padding, 5],
-    sans_swing_up         : [0, 200, 186 + padding, 210 + padding, -5],
-    sans_swing_right       : [0, 412, 288 + padding, 144 + padding, 5],
-    sans_swing_left       : [0, 412, 288 + padding, 144 + padding, -5],
+    sans_swing_down             : [0, 200, 186 + padding, 210 + padding, 5],
+    sans_swing_up               : [0, 200, 186 + padding, 210 + padding, -5],
+    sans_swing_right            : [0, 412, 288 + padding, 144 + padding, 5],
+    sans_swing_left             : [0, 412, 288 + padding, 144 + padding, -5],
   },
 
+  attack                        : {
+    /*  animations  */
+    attack_anim                 : [0, 0, 34 + padding, 204, 6]
+  }
 };
 
 export { padding, gameSpriteSheetData_json };

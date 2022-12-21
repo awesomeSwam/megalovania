@@ -7,13 +7,12 @@ const Sound = {
   
   load: function() {
     for (const [sound, src] of Object.entries(soundData_json)) {
-      this.sounds[sound] = new Audio();
-      this.sounds[sound].src = src;
+      this.sounds[sound] = new Howl({ src });
     }
   },
 
   play: function(sound) {
-    this.sounds[sound].cloneNode(true).play();
+    this.sounds[sound].play();
   }
 };
 

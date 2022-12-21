@@ -25,7 +25,7 @@ class GasterBlaster {
     this.targetY = targetY;
     this.targetAngle = targetAngle;
     
-    this.speed = 300;
+    this.speed = 400;
     this.lazer = null;
     this.rad = null;
     this.alpha = 1;
@@ -154,21 +154,24 @@ class GasterBlaster {
     this.lazer.collider.l = this.lazer.collider.r = this.lazer.w = Math.cos(this.lazer.t * gasterBlaster_cos) * 70;
     return true;
   }
-
+  
   drawLazer() {
     if (this.lazer.w < 3) return ;
 
-    this.drawLine(120, this.lazer.w);
-    this.drawLine(100, this.lazer.w * 0.7);
-    this.drawLine(80, this.lazer.w * 0.4);
+    this.drawLine(80, 20, this.lazer.w * 0.4);
+    this.drawLine(100, 20, this.lazer.w * 0.7);
+    this.drawLine(120, GasterBlaster_lazer, this.lazer.w);
   }
 
-  drawLine(step, width) {
+  drawLine(step, toStep, width) {
+    const x = this.x + Math.cos(this.rad) * step;
+    const y = this.y + Math.sin(this.rad) * step;
+    
     this.ctx.strokeStyle = "white";
     this.ctx.lineWidth = width + width;
     this.ctx.beginPath();
-    this.ctx.moveTo(this.x + Math.cos(this.rad) * step, this.y + Math.sin(this.rad) * step);
-    this.ctx.lineTo(this.x + Math.cos(this.rad) * GasterBlaster_lazer, this.y + Math.sin(this.rad) * GasterBlaster_lazer);
+    this.ctx.moveTo(x, y);
+    this.ctx.lineTo(x + Math.cos(this.rad) * toStep, y + Math.sin(this.rad) * toStep);
     this.ctx.stroke();
   }
 }
@@ -186,7 +189,7 @@ class GasterBlaster_half {
     this.targetY = targetY;
     this.targetAngle = targetAngle;
     
-    this.speed = 300;
+    this.speed = 400;
     this.lazer = null;
     this.rad = null;
     this.alpha = 1;
@@ -319,23 +322,26 @@ class GasterBlaster_half {
   drawLazer() {
     if (this.lazer.w < 3) return ;
 
-    this.drawLine(120, this.lazer.w);
-    this.drawLine(100, this.lazer.w * 0.7);
-    this.drawLine(80, this.lazer.w * 0.4);
+    this.drawLine(80, 20, this.lazer.w * 0.4);
+    this.drawLine(100, 20, this.lazer.w * 0.7);
+    this.drawLine(120, GasterBlaster_lazer, this.lazer.w);
   }
 
-  drawLine(step, width) {
+  drawLine(step, toStep, width) {
+    const x = this.x + Math.cos(this.rad) * step;
+    const y = this.y + Math.sin(this.rad) * step;
+    
     this.ctx.strokeStyle = "white";
     this.ctx.lineWidth = width + width;
     this.ctx.beginPath();
-    this.ctx.moveTo(this.x + Math.cos(this.rad) * step, this.y + Math.sin(this.rad) * step);
-    this.ctx.lineTo(this.x + Math.cos(this.rad) * GasterBlaster_lazer, this.y + Math.sin(this.rad) * GasterBlaster_lazer);
+    this.ctx.moveTo(x, y);
+    this.ctx.lineTo(x + Math.cos(this.rad) * toStep, y + Math.sin(this.rad) * toStep);
     this.ctx.stroke();
   }
 }
 
 class GasterBlasterTornado {
-  constructor(obj, loop, cnt, time) {
+  constructor(obj, loop, cnt, time, reverse = false) {
     this.obj = obj;
     
     this.gasters = [];
@@ -345,6 +351,7 @@ class GasterBlasterTornado {
 
     this.t = 0;
     this.angle = 0;
+    this.reverse = reverse;
 
     [this.centerX, this.centerY] = this.obj.battleBox.getCenter();
   }
@@ -366,7 +373,7 @@ class GasterBlasterTornado {
       const cos = Math.cos(this.angle * toRad);
       const sin = Math.sin(this.angle * toRad);
       this.gasters.push(new GasterBlaster_half(this.obj, this.centerX + cos * 1000, this.centerY + sin * 1000, this.angle - 180 + 90, this.centerX + cos * 400, this.centerY + sin * 400, this.angle + 90));
-      this.angle += this.a;
+      this.angle += this.a * (this.reverse ? -1 : 1);
       this.x--;
     }
 
@@ -383,9 +390,16 @@ class GasterBlasterTornado {
     this.gasters.forEach(p => p.draw());
   }
 
-  // check() {
-  //   this.gasters.forEach(p => p.check());
-  // }
+  check() {
+    let b = false;
+    this.gasters.forEach(p => {
+      if (p.check()) {
+        b = true;
+      }
+    });
+    
+    return b;
+  }
 }
 
 export { GasterBlaster, GasterBlaster_half, GasterBlasterTornado };

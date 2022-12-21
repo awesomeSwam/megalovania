@@ -1,4 +1,4 @@
-import { Collider } from "../Components/Collider.js";
+import { Collider, Debugger } from "../Components/Collider.js";
 
 const platformer_width_half = 50;
 const platformer_height_half = 10;
@@ -42,10 +42,6 @@ class Platformer {
     this.x = this.startX + (this.endX - this.startX) * perc;
     this.y = this.startY + (this.endY - this.startY) * perc;
 
-    return false;
-  }
-
-  check() {
     if (this.collision && !this.player.blue_jumping && this.on) {
       this.player.blue_onPlatformer = true;
       this.player.blue_jumping = false;
@@ -87,6 +83,14 @@ class Platformer {
       default:
         break;
     }
+    
+    return false;
+  }
+
+  check() {
+    if (Debugger.is) {
+      Debugger.rect(this.collider, this.collider.OBB(this.obj.player.collider));
+    }
 
     return false;
   }
@@ -97,6 +101,8 @@ class Platformer {
     this.ctx.beginPath();
     this.ctx.rect(this.x - this.w, this.y - this.h, this.w + this.w, this.h + this.h);
     this.ctx.stroke();
+
+    this.check();
   }
 }
 

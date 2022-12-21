@@ -2,6 +2,7 @@ import { Sprite } from "../AssetsManagement/Sprite.js";
 import { Animator } from "../Components/Animator.js";
 import { gameSpriteSheetData_json } from "../Constants/spriteSheetData.js";
 import { Debugger } from "../Components/Collider.js";
+import { lerp } from "../Constants/GameMath.js";
 
 const sans_leg_stand_w = gameSpriteSheetData_json.sans.sans_leg_stand[2];
 const sans_leg_stand_h = gameSpriteSheetData_json.sans.sans_leg_stand[3];
@@ -73,7 +74,7 @@ class Sans {
     this.player = obj.player;
 
     this.x = 640;
-    this.y = 200;
+    this.y = 250;
 
     this.setAnimations();
   }
@@ -89,6 +90,17 @@ class Sans {
     this.sans_swing_state = false;
 
     this.sans_padding = 0;
+
+    this.isLerping = false;
+    this.fromX = 0;
+    this.fromY = 0;
+    this.toX = 0;
+    this.toY = 0;
+
+    this.currentLerpTime = 0;
+    this.lerpTime = 0;
+
+    this.sweat = 0;
   }
 
   swingAttack(direction) {
@@ -99,7 +111,47 @@ class Sans {
     this.obj.player.changeBlueState(direction);
   }
 
+  setSweat(idx) {
+    this.sweat = idx;
+  }
+
+  set_sans_face(idx) {
+    this.sans_face = idx;
+  }
+
+  tp(x, y) {
+    this.x = x;
+    this.y = y;
+  }
+
+  lerp(x, y, t) {
+    this.isLerping = true;
+    this.fromX = this.x;
+    this.fromY = this.y;
+    this.toX = x;
+    this.toY = y;
+
+    this.currentLerpTime = 0;
+    this.lerpTime = t;
+  }
+
+  moveLerp() {
+    if (this.isLerping) {
+      this.currentLerpTime += this.obj.dt;
+      if (this.currentLerpTime > this.lerpTime) {
+        this.isLerping = false;
+        return ;
+      }
+
+      const perc = this.currentLerpTime / this.lerpTime;
+      this.x = lerp(this.fromX, this.toX, perc);
+      this.y = lerp(this.fromY, this.toY, perc);
+    }
+  }
+  
   update() {
+    this.moveLerp();
+
     if (!this.sans_swing_state) {
       this.sans_padding += this.obj.dt;
       if (this.sans_padding > Math.PI) {
@@ -122,6 +174,9 @@ class Sans {
       const paddingVer = Math.sin(3 * this.sans_padding) * 3;
       const paddingHed = Math.sin(18 * this.sans_padding) + 16;
 
+      let x = this.x + p_f_w - paddingHor;
+      let y = this.y + p_f_h + paddingVer + paddingHed;
+
       Sprite.draw(
         "sans_leg_stand",
         this.x + p_l1_w,
@@ -134,40 +189,42 @@ class Sans {
       );
       Sprite.draw(
         `sans_face_${this.sans_face}`,
-        this.x + p_f_w - paddingHor,
-        this.y + p_f_h + paddingVer + paddingHed
+        x, y
       );
+
+      if (this.sweat != 0) {
+        Sprite.draw(`sans_head_sweat_${this.sweat - 1}`, x, y);
+      }
     } else {
+      let x = 0;
+      let y = 0;
       if (this.swing_direction <= 1) {
         this.animator.playCenter(this.x + sans_Hswing_padding_w, this.y + sans_Hswing_padding_h);
         if (this.swing_direction == anim_dir_left) {
-          Sprite.drawCenter(
-            `sans_face_${this.sans_face}`,
-            this.x + sans_Hswing_head[this.animator.idx],
-            this.y + sans_Hswing_head_center_h
-          );
+          x = this.x + sans_Hswing_head[this.animator.idx];
+          y = this.y + sans_Hswing_head_center_h;
         } else {
-          Sprite.drawCenter(
-            `sans_face_${this.sans_face}`,
-            this.x + sans_Hswing_head_reverse[this.animator.idx],
-            this.y + sans_Hswing_head_center_h
-          );
+          x = this.x + sans_Hswing_head_reverse[this.animator.idx];
+          y = this.y + sans_Hswing_head_center_h;
         }
       } else {
         this.animator.playCenter(this.x + sans_Vswing_padding_w, this.y + sans_Vswing_padding_h);
         if (this.swing_direction == anim_dir_down) {
-          Sprite.drawCenter(
-            `sans_face_${this.sans_face}`,
-            this.x + sans_Vswing_head_center_w,
-            this.y + sans_Vswing_head[this.animator.idx],
-          );
+          x = this.x + sans_Vswing_head_center_w;
+          y = this.y + sans_Vswing_head[this.animator.idx];
         } else {
-          Sprite.drawCenter(
-            `sans_face_${this.sans_face}`,
-            this.x + sans_Vswing_head_center_w,
-            this.y + sans_Vswing_head_reverse[this.animator.idx],
-          );
+          x = this.x + sans_Vswing_head_center_w;
+          y = this.y + sans_Vswing_head_reverse[this.animator.idx];
         }
+      }
+
+      Sprite.drawCenter(
+        `sans_face_${this.sans_face}`,
+        x, y
+      );
+      
+      if (this.sweat != 0) {
+        Sprite.draw(`sans_head_sweat_${this.sweat - 1}`, x - 48, y - 48);
       }
     }
 
@@ -216,6 +273,50 @@ class Sans {
 
   setBox(x1, y1, x2, y2, lerpTime) {
     this.obj.battleBox.setBox([{ x: x1, y: y1 }, { x: x2, y: y2 }], lerpTime);
+  }
+
+  toRightState() {
+    this.obj.player.changeState("right");
+  }
+
+  right_moveTo(x, y, lerpTime) {
+    this.obj.player.right_moveTo(x, y, lerpTime);
+  }
+
+  drawStay(idx) {
+    Sprite.draw(
+      "sans_leg_stand",
+      this.x + p_l1_w,
+      this.y + p_l1_h
+    );
+    Sprite.draw(
+      "sans_body_0",
+      this.x + p_b0_w,
+      this.y + p_b0_h
+    );
+    Sprite.draw(
+      `sans_face_${idx}`,
+      this.x + p_f_w,
+      this.y + p_f_h + 20
+    );
+  }
+
+  drawDead() {
+    Sprite.draw(
+      "sans_leg_stand",
+      this.x + p_l1_w,
+      this.y + p_l1_h
+    );
+    Sprite.draw(
+      "sans_damaged_body_0",
+      this.x + p_b0_w,
+      this.y + p_b0_h
+    );
+    Sprite.draw(
+      `sans_face_${this.sans_face}`,
+      this.x + p_f_w,
+      this.y + p_f_h + 20
+    );
   }
 }
 

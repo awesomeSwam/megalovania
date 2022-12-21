@@ -8,11 +8,14 @@ const KeyListener = {
   keys: {
     horizontal: { a: false, d: false, state: null },
     vertical: { w: false, d: false, state: null },
-    attack: false
+    attack: false,
+    any: false
   },
 
   listenKeyEvent: function() {
     document.onkeydown = e => {
+      this.any = true;
+
       switch(e.keyCode) {
         case KEY_A:
           this.keys.horizontal.a = true;
@@ -39,6 +42,8 @@ const KeyListener = {
     };
 
     document.onkeyup = e => {
+      this.any = false;
+      
       switch(e.keyCode) {
         case KEY_A:
           this.keys.horizontal.a = false;

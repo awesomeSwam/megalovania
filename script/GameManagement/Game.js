@@ -9,8 +9,21 @@ import { Sans } from "../Objects/Sans.js";
 import { Generator } from "./Generator.js";
 import { DrawBone } from "../Objects/Bone.js";
 import { Sound } from "../AssetsManagement/Sound.js";
+import { HP } from "../Objects/hp.js"
 
 import { attackList, listName } from "./attackList.js";
+import { Animator } from "../Components/Animator.js";
+
+const s = [
+  "do you wanna have a bad time?",
+  "(You felt your sins crawling on your back.)",
+];
+
+const ending = [
+  "so... guess that's it. huh?",
+  "just...",
+  "don't say i didn't warn you",
+]
 
 const Game = {
   canvas: null,
@@ -57,93 +70,193 @@ const Game = {
     this.rotBones = [];
     this.alertBones = [];
     this.lineBoneX = [];
+    this.lazerBone = [];
+    this.dirBone = [];
     this.loop = [];
+    this.lineBoneBlue = [];
 
-    this.lastUpdate = Date.now();
-    this.time = 0;
+    this.hp = new HP(this.obj, 100);
+
+    this.state = "sans";
+
+    this.s_state = 0;
+    this.s_t = 0;
+    this.s_str = "";
+
+    this.ending_state = 0;
+    this.ending_t = 0;
+    this.ending_str = "";
+
+    this.animator = new Animator(this.ctx);
+    this.animator.addAnimation("attack_anim", 0.05);
   },
 
   start: function() {
     this.gameLoop();
-    Sound.play("megalovania");
   },
 
-  t: 0,
-  t1: 0,
-  t2: 0,
-  t3: 0,
-  t4: 0,
-  t5: 0,
-
   gameLoop: function() {
+    switch (this.state) {
+      case "sans":
+        this.s();
+        break;
+      case "game":
+        this.game();
+        
+        if (this.time >= 165) {
+          this.state = "ending";
+          this.animator.initialize("attack_anim");
+          Sound.play("fight");
+        }
+
+        break;
+      case "ending":
+        this.ending();
+        break;
+      case "dead":
+        
+        break;
+      default:
+        break;
+    }
+
+    window.requestAnimationFrame(() => this.gameLoop());
+  },
+
+  ending: function() {
+    this.ctx.fillStyle = "black";
+    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+    if (this.ending_state != 0) {
+      this.sans.set_sans_face(6 + this.ending_state);
+      this.sans.drawDead();
+    } else {
+      this.sans.drawStay(0);
+    }
+
+    this.ending_update();
+
+    this.ctx.textAlign = "center";
+    this.ctx.fillStyle = "white";
+    this.ctx.font = "48px Undertale Sans";
+    this.ctx.fillText(this.ending_str, 640, 350);
+
+    Sprite.drawCenter("heart_red_down", 640, 600);
+  },
+
+  ending_update: function() {
+    const now = Date.now();
+    const dt = (now - this.lastUpdate) / 1000;
+    this.lastUpdate = now;
+
+    if (this.ending_state == 0) {
+      if (this.animator.update(dt)) {
+        this.ending_state++;
+      }
+
+      this.animator.playCenter(this.sans.x, this.sans.y - 100);
+      return ;
+    }
+
+    if (this.ending_state - 1 >= ending.length) {
+      if (KeyListener.any) {
+        this.state = "end";
+      }
+
+      return ;
+    }
+
+    if (this.ending_t > 0) {
+      this.ending_t = Math.max(0, this.ending_t - dt);
+      return ;
+    }
+
+    if (this.ending_str.length < ending[this.ending_state - 1].length) {
+      Sound.play("speak");
+      this.ending_str += ending[this.ending_state - 1][this.ending_str.length];
+      this.ending_t = 0.02;
+      return ;
+    }
+
+    if (KeyListener.any) {
+      this.ending_str = "";
+      this.ending_state++;
+    }
+  },
+
+  dead: function() {
+    this.ctx.fillStyle = "black";
+    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+  },
+
+  s: function() {
+    this.ctx.fillStyle = "black";
+    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    
+    this.sans.drawStay((this.s_state == 0) ? 4 : 6);
+
+    this.s_update();
+
+    this.ctx.textAlign = "center";
+    this.ctx.fillStyle = "white";
+    this.ctx.font = "48px Undertale Sans";
+    this.ctx.fillText(this.s_str, 640, 350);
+
+    Sprite.drawCenter("heart_red_down", 640, 600);
+  },
+
+  s_update: function() {
+    const now = Date.now();
+    const dt = (now - this.lastUpdate) / 1000;
+    this.lastUpdate = now;
+
+    if (this.s_state >= s.length) {
+      if (KeyListener.any) {
+        this.state = "game";
+        
+        this.obj.dt = 0;
+        this.lastUpdate = Date.now();
+        this.time = 0;
+  
+        Sound.play("megalovania");
+      }
+
+      return ;
+    }
+
+    if (this.s_t > 0) {
+      this.s_t = Math.max(0, this.s_t - dt);
+      return ;
+    }
+
+    if (this.s_str.length < s[this.s_state].length) {
+      Sound.play("speak");
+      this.s_str += s[this.s_state][this.s_str.length];
+      this.s_t = 0.02;
+      return ;
+    }
+
+    if (KeyListener.any) {
+      this.s_str = "";
+      this.s_state++;
+    }
+  },
+
+  game: function() {
     const now = Date.now();
     this.obj.dt = (now - this.lastUpdate) / 1000;
     this.lastUpdate = now;
 
-    this.time += this.obj.dt; console.log(this.obj.dt);
-
-    // console.log(this.obj.dt);
-
-    // this.t += this.obj.dt;
-    // if (this.t > 2) {
-    //   this.t = 0;
-      
-    //   for (let func of [ "upLeft", "upRight", "rightUp", "rightDown", "leftUp", "leftDown", "downLeft", "downRight" ]) {
-    //     this.lineBone.push(Generator.LineBone[func](300, randomInt(20, 40)));
-    //     // this.lineBone.push(Generator.LineBone_blue[func](300, randomInt(20, 40)));
-    //   }
-    // }
-
-    // this.t1 += this.obj.dt;
-    // if (this.t1 > 2) {
-    //   this.t1 = 0;
-
-    //   const arr = ["up", "down", "right", "left"];
-    //   this.sans.swingAttack(arr[randomInt(0, 3)]);
-    //   this.platformer.push(Generator.Platformer.platformer(100, 650, 1200, 650));
-    //   this.rotBones.push(Generator.RotBones.targetPlayer());
-    // }
-
-    // this.t2 += this.obj.dt;
-    // if (this.t2 > 2) {
-    //   this.t2 = 0;
-
-    //   for (let func of ["up", "down", "left", "right"]) {
-    //     this.alertBones.push(Generator.AlertBones[func](150, 1));
-    //   }
-    // }
-
-    // this.t3 += this.obj.dt;
-    // if (this.t3 > 2) {
-    //   this.t3 = 0;
-
-    //   this.gasterBlaster.push(Generator.GasterBlaster.random());
-    //   // this.gasterBlaster.push(Generator.GasterBlaster.left(3, 1));
-    //   // this.gasterBlaster.push(Generator.GasterBlaster.right(3, 1));
-    //   //       this.gasterBlaster.push(...Generator.GasterBlaster.leftAll(3));
-    //   // this.gasterBlaster.push(...Generator.GasterBlaster.rightAll(3));
-    // }
-
-    // this.t4 += this.obj.dt;
-    // if (this.t4 > 2) {
-    //   this.t4 = 0;
-      
-    //   for (let func of [ "upLeft", "upRight", "rightUp", "rightDown", "leftUp", "leftDown", "downLeft", "downRight" ]) {
-    //     this.lineBone.push(Generator.LineBoneX[func](300, 8, 60, 100));
-    //   }
-    // }
-
-    // this.t5 += this.obj.dt;
-    // if (this.t5 > 20) {
-    //   this.t5 = 0;
-    //   this.tornado.push(Generator.GasterBlaster.Tornado(2, 36, 2.5));
-    // }
+    this.time += this.obj.dt;
 
     this.updateAttackList();
     this.update();
     this.draw();
-    
-    window.requestAnimationFrame(() => this.gameLoop());
+
+    if (this.hp.hp <= 0) {
+      this.state = "dead";
+      Howler.stop();
+    }
   },
 
   updateAttackList: function() {
@@ -180,7 +293,6 @@ const Game = {
 
     this.loop.filter(p => {
       p.t += this.obj.dt;
-      p.k += this.obj.dt;
       
       if (p.t < p.diff) return false;
 
@@ -204,33 +316,61 @@ const Game = {
     this.sans.update();
     this.player.update();
 
+    this.lineBoneBlue = this.lineBoneBlue.filter(p => !p.update());
     this.lineBone = this.lineBone.filter(p => !p.update());
     this.rotBones = this.rotBones.filter(p => !p.update());
     this.alertBones = this.alertBones.filter(p => !p.update());
-    this.gasterBlaster = this.gasterBlaster.filter(p => p.update());
+    this.gasterBlaster = this.gasterBlaster.filter(p => !p.update());
     this.lineBoneX = this.lineBoneX.filter(p => !p.update());
     this.tornado = this.tornado.filter(p => !p.update());
     this.platformer = this.platformer.filter(p => !p.update());
+    this.lazerBone = this.lazerBone.filter(p => !p.update());
+    this.dirBone = this.dirBone.filter(p => !p.update());
+
+    this.hp.isCollision = this.check();
+    this.hp.update();
   },
 
   draw: function() {
     this.ctx.fillStyle = "black";
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
+    this.lineBoneBlue.forEach(p => p.draw());
     this.lineBone.forEach(p => p.draw());
     this.lineBoneX.forEach(p => p.draw());
     this.alertBones.forEach(p => p.draw());
     this.platformer.forEach(p => p.draw());
     
     this.battleBox.draw();
-
-
+    
+    this.hp.draw();
     this.sans.draw();
     this.player.draw();
     this.alertBones.forEach(p => p.drawAlert());
     this.rotBones.forEach(p => p.draw());
     this.gasterBlaster.forEach(p => p.draw());
     this.tornado.forEach(p => p.draw());
+    this.lazerBone.forEach(p => p.draw());
+    this.dirBone.forEach(p => p.draw());
+  },
+
+  check: function() {
+    const arr = ["lineBone", "lineBoneX", "alertBones", "rotBones", "gasterBlaster", "tornado", "lazerBone", "dirBone"];
+    let b = false;
+
+    arr.forEach(x => {
+      this[x].forEach(y => {
+        if (y.check()) b = true;
+      });
+    });
+
+    this.lineBoneBlue.forEach(p => {
+      if (p.check() && this.player.moved) {
+        b = true;
+      }
+    })
+
+    return b;
   }
 }
 

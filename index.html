@@ -7,25 +7,31 @@
     <title>Undertale</title>
     <style>
       * {
-        background-color: gray;
+        background-color: black;
         margin: 0;
         padding: 0;
       }
-      
-      #canvas-container {
-        width: 100%;
-        text-align: center;
-      }
 
       canvas {
-        display: inline;
+        position: absolute;
+        left: 50%;
+        top: 50%;
+
+        margin: -480px -640px;
+      }
+
+      @font-face { /* 애플산돌고딕 폰트 적용 */
+        font-family: "Undertale Sans";
+        src: url("./font/UndertaleSans.ttf") format("truetype");
+        font-weight: normal;
       }
     </style>
+    <script src="./script/howler.js"></script>
     <script src="./script/main.js" type="module"></script>
   </head>
   <body>
     <div id="canvas-container">
-      <canvas id="canvas" width="1280" height="960"></canvas>
+        <canvas id="canvas" width="1280" height="960"></canvas>
     </div>    
   </body>
 </html>

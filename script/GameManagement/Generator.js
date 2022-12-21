@@ -1,4 +1,4 @@
-import { LineBone, BlueLineBone, LineBoneX, RotBones, AlertBones } from "../Objects/Bone.js";
+import { LineBone, BlueLineBone, LineBoneX, RotBones, AlertBones, LazerBone, DirBone } from "../Objects/Bone.js";
 import { battleBoxLineWidth } from "../Objects/BattleBox.js";
 import { randomInt, toRad } from "../Constants/GameMath.js";
 import { GasterBlaster, GasterBlaster_half, GasterBlasterTornado } from "../Objects/GasterBlaster.js";
@@ -12,7 +12,10 @@ const {
   lineBone: _lineBone,
   rotBones: _rotBones,
   alertBones: _alertBones,
-  lineBoneX: _lineBoneX
+  lineBoneX: _lineBoneX,
+  lazerBone: _lazerBone,
+  dirBone: _dirBone,
+  lineBoneBlue: _lineBone_blue
 } = listNameObj;
 
 const LineBonePadding = battleBoxLineWidth / 2 + 2;
@@ -64,42 +67,42 @@ const Generator = {
   LineBone_blue: {
     upLeft: function(speed, length = 20) {
       const [x, y] = Generator.obj.battleBox.getUpLeft();
-      return [_lineBone, new BlueLineBone(Generator.obj, x + LineBonePadding, y + LineBonePadding, speed, length, "down")];
+      return [_lineBone_blue, new BlueLineBone(Generator.obj, x + LineBonePadding, y + LineBonePadding, speed, length, "down")];
     },
 
     upRight: function(speed, length = 20) {
       const [x, y] = Generator.obj.battleBox.getUpRight();
-      return [_lineBone, new BlueLineBone(Generator.obj, x - LineBonePadding, y + LineBonePadding, -speed, length, "down")];
+      return [_lineBone_blue, new BlueLineBone(Generator.obj, x - LineBonePadding, y + LineBonePadding, -speed, length, "down")];
     },
 
     rightUp: function(speed, length = 20) {
       const [x, y] = Generator.obj.battleBox.getUpRight();
-      return [_lineBone, new BlueLineBone(Generator.obj, x - LineBonePadding, y + LineBonePadding, speed, length, "left")];
+      return [_lineBone_blue, new BlueLineBone(Generator.obj, x - LineBonePadding, y + LineBonePadding, speed, length, "left")];
     },
     
     rightDown: function(speed, length = 20) {
       const [x, y] = Generator.obj.battleBox.getDownRight();
-      return [_lineBone, new BlueLineBone(Generator.obj, x - LineBonePadding, y - LineBonePadding, -speed, length, "left")];
+      return [_lineBone_blue, new BlueLineBone(Generator.obj, x - LineBonePadding, y - LineBonePadding, -speed, length, "left")];
     },
 
     leftUp: function(speed, length = 20) {
       const [x, y] = Generator.obj.battleBox.getUpLeft();
-      return [_lineBone, new BlueLineBone(Generator.obj, x + LineBonePadding, y + LineBonePadding, speed, length, "right")];
+      return [_lineBone_blue, new BlueLineBone(Generator.obj, x + LineBonePadding, y + LineBonePadding, speed, length, "right")];
     },
     
     leftDown: function(speed, length = 20) {
       const [x, y] = Generator.obj.battleBox.getDownLeft();
-      return [_lineBone, new BlueLineBone(Generator.obj, x + LineBonePadding, y - LineBonePadding, -speed, length, "right")];
+      return [_lineBone_blue, new BlueLineBone(Generator.obj, x + LineBonePadding, y - LineBonePadding, -speed, length, "right")];
     },
 
     downLeft: function(speed, length = 20) {
       const [x, y] = Generator.obj.battleBox.getDownLeft();
-      return [_lineBone, new BlueLineBone(Generator.obj, x + LineBonePadding, y - LineBonePadding, speed, length, "up")];
+      return [_lineBone_blue, new BlueLineBone(Generator.obj, x + LineBonePadding, y - LineBonePadding, speed, length, "up")];
     },
 
     downRight: function(speed, length = 20) {
       const [x, y] = Generator.obj.battleBox.getDownRight();
-      return [_lineBone, new BlueLineBone(Generator.obj, x - LineBonePadding, y - LineBonePadding, -speed, length, "up")];
+      return [_lineBone_blue, new BlueLineBone(Generator.obj, x - LineBonePadding, y - LineBonePadding, -speed, length, "up")];
     }
   },
 
@@ -170,6 +173,10 @@ const Generator = {
   },
 
   GasterBlaster: {
+    new: function(x, y, angle, tX, tY, tAngle) {
+      return [_gasterBlaster, new GasterBlaster(Generator.obj, x, y, angle, tX, tY, tAngle)];
+    },
+
     random: function() {
       const x = randomInt(0, Generator.obj.canvas.width);
       const y = randomInt(0, Generator.obj.canvas.height);
@@ -225,12 +232,52 @@ const Generator = {
       return [_gasterBlaster, ret];
     },
 
+    up: function(split, idx) {
+      const l = (Generator.obj.battleBox.points[1].x - Generator.obj.battleBox.points[0].x) / split;
+      const x = 0, y = 0, angle = 0;
+      const [tx, ty] = Generator.obj.battleBox.getUpLeft();
+      const tangle = -90;
+
+      return [_gasterBlaster, new GasterBlaster(Generator.obj, x, y, angle + 90, tx + l * idx, ty - 50, tangle + 90)];
+    },
+
+    down: function(split, idx) {
+      const l = (Generator.obj.battleBox.points[1].x - Generator.obj.battleBox.points[0].x) / split;
+      const x = Generator.obj.canvas.width, y = Generator.obj.canvas.height, angle = 180;
+      const [tx, ty] = Generator.obj.battleBox.getDownRight();
+      const tangle = 90;
+
+      return [_gasterBlaster, new GasterBlaster(Generator.obj, x, y, angle + 90, tx - l * idx, ty + 50, tangle + 90)];
+    },
+
+    upAll: function(split) {
+      let ret = []; split--;
+      for (let i = 0; i <= split; i++) {
+        ret.push(this.up(split, i)[1]);
+      }
+
+      return [_gasterBlaster, ret];
+    },
+
+    downAll: function(split) {
+      let ret = []; split--;
+      for (let i = 0; i <= split; i++) {
+        ret.push(this.down(split, i)[1]);
+      }
+
+      return [_gasterBlaster, ret];
+    },
+
     Tornado: function(loop, cnt, time) {
       return [_tornado, new GasterBlasterTornado(Generator.obj, loop, cnt, time)];
     }
   },
 
   GasterBlaster_half: {
+    new: function(x, y, angle, tX, tY, tAngle) {
+      return [_gasterBlaster, new GasterBlaster_half(Generator.obj, x, y, angle, tX, tY, tAngle)];
+    },
+    
     random: function() {
       const x = randomInt(0, Generator.obj.canvas.width);
       const y = randomInt(0, Generator.obj.canvas.height);
@@ -288,6 +335,10 @@ const Generator = {
 
     Tornado: function(loop, cnt, time) {
       return [_tornado, new GasterBlasterTornado(Generator.obj, loop, cnt, time)];
+    },
+
+    TornadoReverse: function(loop, cnt, time) {
+      return [_tornado, new GasterBlasterTornado(Generator.obj, loop, cnt, time, true)];
     }
   },
 
@@ -298,6 +349,41 @@ const Generator = {
 
     platformerTime: function(fromX, fromY, toX, toY, lerpTime) {
       return [_platformer, new Platformer(Generator.obj, fromX, fromY, toX, toY, lerpTime)];
+    }
+  }, 
+
+  LazerBone: {
+    lazerBone: function(x) {
+      return [_lazerBone, new LazerBone(Generator.obj, x)];
+    },
+
+    random: function() {
+      return [_lazerBone, new LazerBone(Generator.obj, randomInt(Generator.obj.battleBox.points[0].x + 30, Generator.obj.battleBox.points[1].x - 30))];
+    },
+
+    toPlayer: function() {
+      return [_lazerBone, new LazerBone(Generator.obj, Generator.obj.player.x)];
+    },
+
+    toPlayerDouble: function() {
+      return [_lazerBone, [new LazerBone(Generator.obj, Generator.obj.player.x - 15), new LazerBone(Generator.obj, Generator.obj.player.x + 15)]];
+    },
+  },
+
+  DirBone: {
+    point: function(x, y, angle, speed) {
+      return [_dirBone, new DirBone(Generator.obj, x, y, angle, speed)];
+    },
+    slice: function(x, y, angle, slice, speed) {
+      const a = 90 / (slice + 1);
+      let ret = [];
+
+      for (let i = 0; i < slice; i++) {
+        angle += a;
+        ret.push(new DirBone(Generator.obj, x, y, angle, speed));
+      }
+
+      return [_dirBone, ret];
     }
   }
 };

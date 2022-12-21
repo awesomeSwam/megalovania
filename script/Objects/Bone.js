@@ -639,4 +639,185 @@ class AlertBones {
   }
 }
 
-export { DrawBone, LineBone, BlueLineBone, LineBoneX, RotBones, AlertBones };
+const lazerBone_length = 30;
+const lazerBone_speed = 700;
+const lazerBone_width = 25;
+
+class LazerBone {
+  constructor(obj, x) {
+    this.ctx = obj.ctx;
+    this.obj = obj;
+    
+    this.x = x;
+    this.y = 0;
+    this.t = 0;
+    this.z = lazerBone_width;
+
+    this.state = false;
+
+    const l = lazerBone_length + vbone_up_h + vbone_up_h - 4;
+    this.collider = new Collider(this, 6, 6, l, -4);
+  }
+
+  update() {
+    if (this.state) {
+      this.t += this.obj.dt;
+      if (this.t > 0.3) {
+        return true;
+      }
+
+      this.z = Math.cos(this.t * ((Math.PI / 2) / 0.3)) * lazerBone_width;
+
+      this.collider.l = this.collider.r = this.z;
+    }
+    
+    this.y += lazerBone_speed * this.obj.dt;
+    if (this.y >= this.obj.canvas.height) {
+      this.state = true;
+      this.y = 0;
+      this.collider.u = 0;
+      this.collider.d = this.obj.canvas.height;
+      Sound.play("blast2");
+    }
+
+    return false;
+  }
+
+  draw() {
+    if (this.state) {
+      this.ctx.strokeStyle = "white";
+      this.ctx.lineWidth = this.z + this.z;
+      this.ctx.beginPath();
+      this.ctx.moveTo(this.x, 0);
+      this.ctx.lineTo(this.x, this.obj.canvas.height);
+      this.ctx.stroke();
+
+      if (Debugger.is) {
+        Debugger.circle(this.x, this.y);
+        this.check();
+      }
+      return ;
+    }
+
+    DrawBone.drawUp(this.x, this.y, lazerBone_length);
+
+    if (Debugger.is) {
+      Debugger.circle(this.x, this.y);
+      this.check();
+    }
+  }
+
+  check() {
+    return this.collider.AABB(this.obj.player.collider);
+  }
+}
+
+// class rainBone {
+//   constructor(obj, x) {
+//     this.ctx = obj.ctx;
+//     this.obj = obj;
+    
+//     this.x = x;
+//     this.y = 0;
+//     this.t = 0;
+//     this.z = lazerBone_width;
+
+//     this.state = false;
+
+//     const l = lazerBone_length + vbone_up_h + vbone_up_h - 4;
+//     this.collider = new Collider(this, 6, 6, l, -4);
+//   }
+
+//   update() {
+//     if (this.state) {
+//       this.t += this.obj.dt;
+//       if (this.t > 0.3) {
+//         return true;
+//       }
+
+//       this.z = Math.cos(this.t * ((Math.PI / 2) / 0.3)) * lazerBone_width;
+
+//       this.collider.l = this.collider.r = this.z;
+//     }
+    
+//     this.y += lazerBone_speed * this.obj.dt;
+//     if (this.y >= this.obj.canvas.height) {
+//       this.state = true;
+//       this.y = 0;
+//       this.collider.u = 0;
+//       this.collider.d = this.obj.canvas.height;
+//     }
+
+//     return false;
+//   }
+
+//   draw() {
+//     if (this.state) {
+//       this.ctx.strokeStyle = "white";
+//       this.ctx.lineWidth = this.z + this.z;
+//       this.ctx.beginPath();
+//       this.ctx.moveTo(this.x, 0);
+//       this.ctx.lineTo(this.x, this.obj.canvas.height);
+//       this.ctx.stroke();
+
+//       if (Debugger.is) {
+//         Debugger.circle(this.x, this.y);
+//         this.check();
+//       }
+//       return ;
+//     }
+
+//     DrawBone.drawUp(this.x, this.y, lazerBone_length);
+
+//     if (Debugger.is) {
+//       Debugger.circle(this.x, this.y);
+//       this.check();
+//     }
+//   }
+
+//   check() {
+//     return this.collider.AABB(this.obj.player.collider);
+//   }
+// }
+
+const dirBone_length = 10;
+
+class DirBone {
+  constructor(obj, x, y, angle, speed) {
+    this.ctx = obj.ctx;
+    this.obj = obj;
+    
+    this.x = x;
+    this.y = y;
+    this.angle = 0;
+
+    this.dirVecX = Math.cos(angle * toRad) * speed;
+    this.dirVecY = Math.sin(angle * toRad) * speed;
+
+    const l = dirBone_length / 2 + vbone_up_h;
+    this.collider = new Collider(this, 6, 6, l - 6, l);
+  }
+
+  update() {
+    this.angle += 720 * this.obj.dt;
+    this.x += this.dirVecX * this.obj.dt;
+    this.y += this.dirVecY * this.obj.dt;
+
+    return this.obj.ctx.withinRange(this.x, this.y);
+  }
+
+  draw() {
+    DrawBone.drawRot(this.x, this.y, this.angle, dirBone_length);
+
+    if (Debugger.is) {
+      Debugger.circle(this.x, this.y);
+      this.check();
+    }
+  }
+
+  check() {
+    return this.collider.OBB(this.obj.player.collider);
+  }
+}
+
+export { DrawBone, LineBone, BlueLineBone, LineBoneX, RotBones, AlertBones, LazerBone, DirBone };
