@@ -13,7 +13,7 @@ class HP {
   update() {
     if (this.isCollision) {
       Sound.play("damaged");
-      this.hp -= this.obj.dt;
+      this.hp -= this.obj.dt * 30;
     }
   }
 

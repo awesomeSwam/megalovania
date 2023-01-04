@@ -356,7 +356,8 @@ const pattern4 = [
   newEvent_setBox(0, [390, 300, 890, 800, 0.3]),
   newEvent_setSweat(10, [3]),
 ];
-for (let i = 0; i < 25; i++) {
+
+for (let i = 0; i < 24; i++) {
   const t = randomInt(0, 3);
   const a = dir[t];
   const b = dir[(t < 2) ? t + 2 : t - 2];

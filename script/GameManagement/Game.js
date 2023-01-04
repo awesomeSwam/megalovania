@@ -103,7 +103,7 @@ const Game = {
       case "game":
         this.game();
         
-        if (this.time >= 165) {
+        if (this.time >= 156) {
           this.state = "ending";
           this.animator.initialize("attack_anim");
           Sound.play("fight");
