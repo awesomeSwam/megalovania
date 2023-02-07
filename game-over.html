@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GAME OVER</title>
+</head>
+<body>
+    <div id="a">GAME</div>
+    <div id="s">OVER</div>
+    <a href="index.html">
+        <!-- <img src="image/reset.png"/> -->
+    </a>
+</body>
+</html>
+
+<style>
+@font-face {
+    font-family: "wa-sans";
+    src: url("font/UndertaleSans.ttf");
+}
+*{
+    font-family: "wa-sans";
+    font-size: 250px;
+    color: #fff;
+}
+body{
+    background-color: #000;
+    display: grid;
+    align-items: center;
+    justify-items: center;
+}
+
+#a{
+    opacity: 0;
+    margin-top: 100px;
+    animation-name: a;
+    animation-duration: 1s;
+    animation-fill-mode: both;
+}
+#s{
+    opacity: 0;
+    animation-name: s;
+    animation-duration: 1s;
+    animation-fill-mode: both;
+}
+
+a{
+    margin-top: 60px;
+    width: 400px;
+    height: 150px;
+    background-image: url("image/reset.png");
+    background-size: 400px;
+    animation-name: btn;
+    animation-duration: 1s;
+    animation-fill-mode: both;
+    animation-delay: 1s;
+}
+
+a:hover{
+    background-image: url("image/reset-hover.png");
+    /* filter: brightness(100); */
+}
+
+@keyframes a {
+    0%{
+        opacity: 0;
+    }
+    100%{
+        transform: translateX(-20px);
+        opacity: 1;
+    }
+}
+@keyframes s {
+    0%{
+        opacity: 0;
+    }
+    100%{
+        transform: translateX(20px);
+        opacity: 1;
+    }
+}
+
+@keyframes btn {
+    0%{
+        opacity: 0;
+        transform: translateY(100px);
+    }
+    100%{
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+</style>
+
