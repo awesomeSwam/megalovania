@@ -15,7 +15,6 @@ const KeyListener = {
   listenKeyEvent: function() {
     document.onkeydown = e => {
       this.any = true;
-
       switch(e.keyCode) {
         case KEY_A:
           this.keys.horizontal.a = true;

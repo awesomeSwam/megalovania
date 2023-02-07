@@ -14,7 +14,6 @@ class HP {
 
   update() {
     this.time++;
-    console.log(this.time)
     if (this.isCollision) {
       if (this.hp <= 0){
         this.kr -= this.obj.dt * 30;

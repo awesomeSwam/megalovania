@@ -217,8 +217,8 @@ const Game = {
         this.obj.dt = 0;
         this.lastUpdate = Date.now();
         this.time = 0;
-  
         Sound.play("megalovania");
+  
       }
 
       return ;
