@@ -170,9 +170,9 @@ class Sans {
 
   draw() {
     if (!this.sans_swing_state) {
-      const paddingHor = Math.sin(6 * this.sans_padding) * 3;
-      const paddingVer = Math.sin(3 * this.sans_padding) * 3;
-      const paddingHed = Math.sin(18 * this.sans_padding) + 16;
+      const paddingHor = Math.sin(2 * this.sans_padding) * 3;
+      const paddingVer = Math.sin(4.5 * this.sans_padding) * 3.5 + 3;
+      const paddingHed = Math.sin(-5 * this.sans_padding) + 16;
 
       let x = this.x + p_f_w - paddingHor;
       let y = this.y + p_f_h + paddingVer + paddingHed;

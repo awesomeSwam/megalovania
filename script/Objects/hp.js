@@ -6,27 +6,48 @@ class HP {
     this.obj = obj;
     this.max = hp;
     this.hp = hp;
+    this.kr = hp;
+    this.time = 0;
 
     this.isCollision = false;
   }
 
   update() {
+    this.time++;
     if (this.isCollision) {
+      if (this.hp <= 0){
+        this.kr -= this.obj.dt * 30;
+      }else{
+        this.hp -= this.obj.dt * 30;
+      }
       Sound.play("damaged");
-      this.hp -= this.obj.dt * 30;
     }
+    if (this.time % 30 == 0){
+      if (this.kr > this.hp){
+        this.kr--;
+      }
+    }
+    if (Math.floor(this.kr - this.hp) >= 15){
+      this.kr--;
+    } 
   }
 
   draw() {
     this.ctx.textAlign = "center";
     this.ctx.fillStyle = "white";
     this.ctx.font = "40px Undertale Sans";
+    this.ctx.fillText("CHARA", 170, 912);
+    this.ctx.fillText("LV 19", 300, 912);
     this.ctx.fillText("HP", 450, 912);
 
-    this.drawLine(480, 480 + 200, 900, 900, "yellow");
-    this.drawLine(480, 480 + 200 * this.hp / this.max, 900, 900, "red");
-
-    this.ctx.fillText(`${Math.floor(this.hp)} / 100`, 785, 912);
+    this.drawLine(480, 480 + 200, 900, 900, "red");
+    this.drawLine(480, 480 + 200 * this.kr / this.max, 900, 900, "#c201c4");
+    this.drawLine(480, 480 + 200 * this.hp / this.max, 900, 900, "yellow");
+    
+    if (!(Math.floor(this.kr - this.hp) <= 0)){
+      this.ctx.fillStyle = "#c201c4";
+    } 
+    this.ctx.fillText(`KR ${Math.floor(this.kr)} / 100`, 805, 912);
   }
 
   drawLine(fromX, toX, fromY, toY, color) {

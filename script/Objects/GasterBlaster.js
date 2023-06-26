@@ -25,7 +25,7 @@ class GasterBlaster {
     this.targetY = targetY;
     this.targetAngle = targetAngle;
     
-    this.speed = 400;
+    this.speed = 500;
     this.lazer = null;
     this.rad = null;
     this.alpha = 1;

@@ -217,8 +217,8 @@ const Game = {
         this.obj.dt = 0;
         this.lastUpdate = Date.now();
         this.time = 0;
-  
         Sound.play("megalovania");
+  
       }
 
       return ;
@@ -253,7 +253,8 @@ const Game = {
     this.update();
     this.draw();
 
-    if (this.hp.hp <= 0) {
+    if (this.hp.kr <= 1) {
+      location.href = "game-over.html"
       this.state = "dead";
       Howler.stop();
     }

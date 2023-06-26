@@ -46,7 +46,6 @@ class Platformer {
       this.player.blue_onPlatformer = true;
       this.player.blue_jumping = false;
       this.player.blue_velocity = 0;
-
       switch (this.player.blue_state) {
         case "up":
           this.player.y = this.y + this.h + heart_size;
@@ -68,6 +67,7 @@ class Platformer {
     this.collision = this.collider.AABB(this.player.platformerCollider);
 
     switch (this.player.blue_state) {
+      
       case "up":
         this.on = this.y + this.h < this.player.y;
         break;
